@@ -142,7 +142,6 @@ function Logo() {
     </div>
   )
 }
-
 interface NavButtonProps {
   icon: React.ReactNode
   label: string
