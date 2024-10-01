@@ -35,7 +35,7 @@ Code Zero is a Next.js-based web application that provides an innovative platfor
 1. Clone the repository:
 
    ```
-   git clone https://github.com/your-username/code-zero.git
+   git clone https://github.com/sing1ee/code-zero.git
    cd code-zero
    ```
 
