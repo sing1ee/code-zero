@@ -28,7 +28,7 @@ export default function Login() {
       if (response.ok) {
         const data = await response.json()
         localStorage.setItem('token', data.token)
-        router.push('/dashboard') // Redirect to dashboard or home page
+        router.push('/') // Redirect to home page
       } else {
         const data = await response.json()
         alert(data.error)

@@ -22,116 +22,126 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import favicon from './favicon.svg'
+import AuthLayout from './layouts/AuthLayout'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const router = useRouter()
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
     // 在这里添加切换主题的逻辑
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    router.push('/auth/login')
+  }
+
   return (
-    <div className={`flex h-screen ${isDarkMode ? 'dark' : ''}`}>
-      {/* 侧边栏 - PC 版本 */}
-      <aside className="hidden w-16 flex-col items-center bg-gray-100 p-4 dark:bg-gray-800 lg:flex">
-        <Logo />
-        <NavButton icon={<Plus />} label="New Thinking" onClick={() => {}} />
-        <HistoryPopover isMobile={false} onClose={() => {}} />
-        <FeedbackPopover isMobile={false} onClose={() => {}} />
-        <SettingsPopover
-          isMobile={false}
-          onClose={() => {}}
-          toggleTheme={toggleTheme}
-          isDarkMode={isDarkMode}
-        />
-      </aside>
+    <AuthLayout>
+      <div className={`flex h-screen ${isDarkMode ? 'dark' : ''}`}>
+        {/* 侧边栏 - PC 版本 */}
+        <aside className="hidden w-16 flex-col items-center bg-gray-100 p-4 dark:bg-gray-800 lg:flex">
+          <Logo />
+          <NavButton icon={<Plus />} label="New Thinking" onClick={() => {}} />
+          <HistoryPopover isMobile={false} onClose={() => {}} />
+          <FeedbackPopover isMobile={false} onClose={() => {}} />
+          <SettingsPopover
+            isMobile={false}
+            onClose={() => {}}
+            toggleTheme={toggleTheme}
+            isDarkMode={isDarkMode}
+          />
+        </aside>
 
-      {/* 移动端菜单 */}
-      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute left-4 top-4 z-50 lg:hidden"
-          >
-            <Menu />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-64">
-          <nav className="flex flex-col space-y-4">
-            <Logo />
-            <NavButton
-              icon={<Plus />}
-              label="New Thinking"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-            <HistoryPopover
-              isMobile={true}
-              onClose={() => setIsMobileMenuOpen(false)}
-            />
-            <FeedbackPopover
-              isMobile={true}
-              onClose={() => setIsMobileMenuOpen(false)}
-            />
-            <SettingsPopover
-              isMobile={true}
-              onClose={() => setIsMobileMenuOpen(false)}
-              toggleTheme={toggleTheme}
-              isDarkMode={isDarkMode}
-            />
-          </nav>
-        </SheetContent>
-      </Sheet>
+        {/* 移动端菜单 */}
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-4 top-4 z-50 lg:hidden"
+            >
+              <Menu />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-64">
+            <nav className="flex flex-col space-y-4">
+              <Logo />
+              <NavButton
+                icon={<Plus />}
+                label="New Thinking"
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+              <HistoryPopover
+                isMobile={true}
+                onClose={() => setIsMobileMenuOpen(false)}
+              />
+              <FeedbackPopover
+                isMobile={true}
+                onClose={() => setIsMobileMenuOpen(false)}
+              />
+              <SettingsPopover
+                isMobile={true}
+                onClose={() => setIsMobileMenuOpen(false)}
+                toggleTheme={toggleTheme}
+                isDarkMode={isDarkMode}
+              />
+            </nav>
+          </SheetContent>
+        </Sheet>
 
-      {/* 主要内容区域 */}
-      <main className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-        {/* 对话区域 */}
-        <section className="flex-1 overflow-auto p-4">
-          <h2 className="mb-4 text-2xl font-bold">Thinking Session</h2>
-          <div className="space-y-4">
-            {/* 这里可以添加对话内容 */}
-            <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-800">
-              <p>User: How can I improve my productivity?</p>
-            </div>
-            <div className="rounded-lg bg-green-100 p-3 dark:bg-green-800">
-              <p>AI: Let&apos;s break this down into steps...</p>
-            </div>
-          </div>
-          <div className="mt-4">
-            <Textarea
-              placeholder="Type your thoughts here..."
-              className="w-full"
-            />
-            <Button className="mt-2">Send</Button>
-          </div>
-        </section>
-
-        {/* 图形展示区域 */}
-        <section className="flex-1 overflow-auto bg-gray-50 p-4 dark:bg-gray-700">
-          <h2 className="mb-4 text-2xl font-bold">Visualization</h2>
-          <div className="space-y-4">
-            <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-              <h3 className="mb-2 text-lg font-semibold">
-                Relationship Diagram
-              </h3>
-              {/* 这里可以添加 Mermaid 图表 */}
-              <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-500">
-                Mermaid Diagram Placeholder
+        {/* 主要内容区域 */}
+        <main className="flex flex-1 flex-col overflow-hidden lg:flex-row">
+          {/* 对话区域 */}
+          <section className="flex-1 overflow-auto p-4">
+            <h2 className="mb-4 text-2xl font-bold">Thinking Session</h2>
+            <div className="space-y-4">
+              {/* 这里可以添加对话内容 */}
+              <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-800">
+                <p>User: How can I improve my productivity?</p>
+              </div>
+              <div className="rounded-lg bg-green-100 p-3 dark:bg-green-800">
+                <p>AI: Let&apos;s break this down into steps...</p>
               </div>
             </div>
-            <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-              <h3 className="mb-2 text-lg font-semibold">Inspiration Map</h3>
-              {/* 这里可以添加 SVG 图表 */}
-              <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-500">
-                SVG Inspiration Map Placeholder
+            <div className="mt-4">
+              <Textarea
+                placeholder="Type your thoughts here..."
+                className="w-full"
+              />
+              <Button className="mt-2">Send</Button>
+            </div>
+          </section>
+
+          {/* 图形展示区域 */}
+          <section className="flex-1 overflow-auto bg-gray-50 p-4 dark:bg-gray-700">
+            <h2 className="mb-4 text-2xl font-bold">Visualization</h2>
+            <div className="space-y-4">
+              <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
+                <h3 className="mb-2 text-lg font-semibold">
+                  Relationship Diagram
+                </h3>
+                {/* 这里可以添加 Mermaid 图表 */}
+                <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-500">
+                  Mermaid Diagram Placeholder
+                </div>
+              </div>
+              <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
+                <h3 className="mb-2 text-lg font-semibold">Inspiration Map</h3>
+                {/* 这里可以添加 SVG 图表 */}
+                <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-500">
+                  SVG Inspiration Map Placeholder
+                </div>
               </div>
             </div>
-          </div>
-        </section>
-      </main>
-    </div>
+          </section>
+        </main>
+      </div>
+    </AuthLayout>
   )
 }
 
@@ -261,7 +271,11 @@ function SettingsPopover({
           <Button variant="outline" className="w-full justify-start">
             Pricing
           </Button>
-          <Button variant="outline" className="w-full justify-start">
+          <Button
+            variant="outline"
+            className="w-full justify-start"
+            onClick={handleLogout}
+          >
             <LogOut className="mr-2 h-4 w-4" /> Log Out
           </Button>
           <Button
