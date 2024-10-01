@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
@@ -7,7 +8,7 @@ interface AuthLayoutProps {
   children: React.ReactNode
 }
 
-function AuthLayout({ children }: AuthLayoutProps) {
+export function AuthLayout({ children }: AuthLayoutProps) {
   const router = useRouter()
 
   useEffect(() => {

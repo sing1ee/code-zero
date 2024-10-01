@@ -27,8 +27,18 @@ export async function POST(request: Request) {
       )
     }
 
+    // Check if JWT_SECRET is set
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret) {
+      console.error('JWT_SECRET is not set')
+      return NextResponse.json(
+        { error: 'Internal Server Error' },
+        { status: 500 }
+      )
+    }
+
     // Generate JWT token
-    const token = jwt.sign({ userId: user[0].id }, process.env.JWT_SECRET!, {
+    const token = jwt.sign({ userId: user[0].id }, jwtSecret, {
       expiresIn: '1d',
     })
 

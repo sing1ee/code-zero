@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/app/components/ui/button'
 import { Input } from '@/app/components/ui/input'
 import {
@@ -63,8 +64,19 @@ export default function Login() {
                 required
               />
             </div>
-            <CardFooter className="mt-4 flex justify-between">
-              <Button type="submit">Login</Button>
+            <CardFooter className="mt-4 flex flex-col items-center">
+              <Button type="submit" className="w-full">
+                Login
+              </Button>
+              <p className="mt-4 text-sm text-gray-600">
+                Don&apos;t have an account?{' '}
+                <Link
+                  href="/auth/register"
+                  className="text-blue-600 hover:underline"
+                >
+                  Register here
+                </Link>
+              </p>
             </CardFooter>
           </form>
         </CardContent>
