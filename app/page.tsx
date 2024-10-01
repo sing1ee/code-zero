@@ -54,6 +54,7 @@ export default function Home() {
             onClose={() => {}}
             toggleTheme={toggleTheme}
             isDarkMode={isDarkMode}
+            handleLogout={handleLogout}
           />
         </aside>
 
@@ -89,6 +90,7 @@ export default function Home() {
                 onClose={() => setIsMobileMenuOpen(false)}
                 toggleTheme={toggleTheme}
                 isDarkMode={isDarkMode}
+                handleLogout={handleLogout}
               />
             </nav>
           </SheetContent>
@@ -236,8 +238,11 @@ function FeedbackPopover({ isMobile, onClose }: PopoverProps) {
 }
 
 interface SettingsPopoverProps extends PopoverProps {
+  isMobile: boolean
+  onClose: () => void
   toggleTheme: () => void
   isDarkMode: boolean
+  handleLogout: () => void
 }
 
 function SettingsPopover({
@@ -245,6 +250,7 @@ function SettingsPopover({
   onClose,
   toggleTheme,
   isDarkMode,
+  handleLogout,
 }: SettingsPopoverProps) {
   return (
     <Popover>
