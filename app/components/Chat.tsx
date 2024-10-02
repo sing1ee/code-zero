@@ -65,34 +65,29 @@ export function Chat() {
                   : 'bg-gray-200 text-gray-800'
               )}
             >
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                className="markdown-content"
-                components={{
-                  code({
-                    className,
-                    children,
-                    ...props
-                  }: ComponentProps<'code'> & { inline?: boolean }) {
-                    const match = /language-(\w+)/.exec(className || '')
-                    return !props.inline && match ? (
-                      <SyntaxHighlighter
-                        language={match[1]}
-                        PreTag="div"
-                        {...props}
-                      >
-                        {String(children).replace(/\n$/, '')}
-                      </SyntaxHighlighter>
-                    ) : (
-                      <code className={className} {...props}>
-                        {children}
-                      </code>
-                    )
-                  },
-                }}
-              >
-                {message.content}
-              </ReactMarkdown>
+              <div className="markdown-body">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    code({
+                      className,
+                      children,
+                      inline,
+                    }: ComponentProps<'code'> & { inline?: boolean }) {
+                      const match = /language-(\w+)/.exec(className || '')
+                      return !inline && match ? (
+                        <SyntaxHighlighter language={match[1]} PreTag="div">
+                          {String(children).replace(/\n$/, '')}
+                        </SyntaxHighlighter>
+                      ) : (
+                        <code className={className}>{children}</code>
+                      )
+                    },
+                  }}
+                >
+                  {message.content}
+                </ReactMarkdown>
+              </div>
             </div>
             {message.role !== 'user' && (
               <button
