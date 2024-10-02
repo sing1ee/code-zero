@@ -10,6 +10,7 @@ import {
 } from './components/ui/popover'
 import { Textarea } from './components/ui/textarea'
 import { ScrollArea } from './components/ui/scroll-area'
+import { Chat } from './components/Chat'
 import {
   Menu,
   Plus,
@@ -74,7 +75,7 @@ export default function Home() {
               <Logo />
               <NavButton
                 icon={<Plus />}
-                label="New Thinking"
+                label="New Chat"
                 onClick={() => setIsMobileMenuOpen(false)}
               />
               <HistoryPopover
@@ -100,23 +101,7 @@ export default function Home() {
         <main className="flex flex-1 flex-col overflow-hidden lg:flex-row">
           {/* 对话区域 */}
           <section className="flex-1 overflow-auto p-4">
-            <h2 className="mb-4 text-2xl font-bold">Thinking Session</h2>
-            <div className="space-y-4">
-              {/* 这里可以添加对话内容 */}
-              <div className="rounded-lg bg-blue-100 p-3 dark:bg-blue-800">
-                <p>User: How can I improve my productivity?</p>
-              </div>
-              <div className="rounded-lg bg-green-100 p-3 dark:bg-green-800">
-                <p>AI: Let&apos;s break this down into steps...</p>
-              </div>
-            </div>
-            <div className="mt-4">
-              <Textarea
-                placeholder="Type your thoughts here..."
-                className="w-full"
-              />
-              <Button className="mt-2">Send</Button>
-            </div>
+            <Chat />
           </section>
 
           {/* 图形展示区域 */}

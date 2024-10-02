@@ -1,6 +1,6 @@
 # Code Zero
 
-Code Zero is a Next.js-based web application that provides an innovative platform for thinking and visualization. It leverages modern web technologies to create an interactive and user-friendly experience.
+Code Zero is a Next.js-based web application that provides an innovative platform for thinking and visualization. It leverages modern web technologies to create an interactive and user-friendly experience for brainstorming and idea management.
 
 ## Features
 
@@ -9,6 +9,8 @@ Code Zero is a Next.js-based web application that provides an innovative platfor
 - Visualization of thoughts and ideas
 - Dark mode support
 - Responsive design for both desktop and mobile
+- Secure password hashing and JWT-based authentication
+- Real-time updates using Supabase (planned)
 
 ## Technologies Used
 
@@ -21,6 +23,7 @@ Code Zero is a Next.js-based web application that provides an innovative platfor
 - [PostgreSQL](https://www.postgresql.org/) as the database
 - [Bcrypt.js](https://github.com/dcodeIO/bcrypt.js/) for password hashing
 - [JSON Web Tokens (JWT)](https://jwt.io/) for authentication
+- [Radix UI](https://www.radix-ui.com/) for accessible UI primitives
 
 ## Getting Started
 
@@ -71,13 +74,17 @@ Code Zero is a Next.js-based web application that provides an innovative platfor
 ## Project Structure
 
 - `app/`: Contains the main application code
-  - `api/`: API routes for authentication
+  - `api/`: API routes for authentication and other server-side operations
   - `auth/`: Authentication-related pages (login, register)
   - `components/`: Reusable React components
-  - `layouts/`: Layout components
-  - `lib/`: Utility functions and database configuration
+  - `layouts/`: Layout components (e.g., AuthLayout)
+  - `lib/`: Utility functions, database configuration, and schemas
 - `public/`: Static assets
 - `drizzle/`: Database migration files
+
+## Authentication
+
+The application uses JWT-based authentication. Users can register and login, and the JWT token is stored in the browser's local storage. The AuthLayout component ensures that protected routes are only accessible to authenticated users.
 
 ## Development
 
