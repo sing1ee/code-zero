@@ -1,20 +1,18 @@
 'use client'
 
 import { useChat } from 'ai/react'
-import { useState } from 'react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { ScrollArea } from './ui/scroll-area'
+import IconStop from './IconStop'
 
 export function Chat() {
-  const [isLoading, setIsLoading] = useState(false)
-  const { messages, input, handleInputChange, handleSubmit } = useChat({
-    keepLastMessageOnError: true,
-    onFinish: () => setIsLoading(false),
-  })
+  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
+    useChat({
+      keepLastMessageOnError: true,
+    })
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    setIsLoading(true)
     handleSubmit(e)
   }
 
@@ -40,8 +38,21 @@ export function Chat() {
           </div>
         ))}
       </ScrollArea>
+
       <form onSubmit={handleFormSubmit} className="border-t p-4">
         <div className="flex space-x-2">
+          {isLoading && (
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => stop()}
+                className="rounded-full p-2 transition-colors hover:bg-gray-200"
+                aria-label="Stop generation"
+              >
+                <IconStop />
+              </button>
+            </div>
+          )}
           <Input
             className="flex-grow"
             value={input}
