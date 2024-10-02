@@ -7,8 +7,12 @@ import { ScrollArea } from './ui/scroll-area'
 import IconStop from './IconStop'
 import IconDelete from './IconDelete'
 import ReactMarkdown from 'react-markdown'
-import rehypeRaw from 'rehype-raw'
+import remarkGfm from 'remark-gfm'
 import { cn } from '../lib/utils'
+import { useCallback } from 'react'
+import './markdown.css'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 export function Chat() {
   const {
@@ -30,6 +34,16 @@ export function Chat() {
     handleSubmit(e)
   }
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !isLoading) {
+        e.preventDefault()
+        handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
+      }
+    },
+    [handleSubmit, isLoading]
+  )
+
   return (
     <div className="flex h-full flex-col">
       <ScrollArea className="flex-grow p-4">
@@ -45,20 +59,33 @@ export function Chat() {
           >
             <div
               className={cn(
-                'inline-block max-w-[80%] rounded-lg p-2',
+                'flex max-w-[80%] flex-col rounded-lg p-4',
                 message.role === 'user'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-200 text-gray-800'
               )}
             >
               <ReactMarkdown
-                rehypePlugins={[rehypeRaw]}
+                remarkPlugins={[remarkGfm]}
+                className="markdown-content break-words"
                 components={{
-                  p: ({ children }) => (
-                    <span className="block whitespace-pre-wrap">
-                      {children}
-                    </span>
-                  ),
+                  code({ node, inline, className, children, ...props }) {
+                    const match = /language-(\w+)/.exec(className || '')
+                    return !inline && match ? (
+                      <SyntaxHighlighter
+                        style={vscDarkPlus}
+                        language={match[1]}
+                        PreTag="div"
+                        {...props}
+                      >
+                        {String(children).replace(/\n$/, '')}
+                      </SyntaxHighlighter>
+                    ) : (
+                      <code className={className} {...props}>
+                        {children}
+                      </code>
+                    )
+                  },
                 }}
               >
                 {message.content}
@@ -94,7 +121,8 @@ export function Chat() {
             className="flex-grow"
             value={input}
             onChange={handleInputChange}
-            placeholder="Type your message..."
+            onKeyDown={handleKeyDown}
+            placeholder="Type your message... (Cmd/Ctrl + Enter to send)"
             disabled={isLoading}
           />
           <Button type="submit" disabled={isLoading}>
