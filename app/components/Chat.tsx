@@ -12,7 +12,7 @@ import { cn } from '../lib/utils'
 import { useCallback } from 'react'
 import './markdown.css'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import { ComponentProps } from 'react'
 
 export function Chat() {
   const {
@@ -26,7 +26,7 @@ export function Chat() {
   } = useChat({
     keepLastMessageOnError: true,
   })
-  const handleDelete = (id) => {
+  const handleDelete = (id: string) => {
     setMessages(messages.filter((message) => message.id !== id))
   }
 
@@ -67,13 +67,16 @@ export function Chat() {
             >
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                className="markdown-content break-words"
+                className="markdown-content"
                 components={{
-                  code({ node, inline, className, children, ...props }) {
+                  code({
+                    className,
+                    children,
+                    ...props
+                  }: ComponentProps<'code'> & { inline?: boolean }) {
                     const match = /language-(\w+)/.exec(className || '')
-                    return !inline && match ? (
+                    return !props.inline && match ? (
                       <SyntaxHighlighter
-                        style={vscDarkPlus}
                         language={match[1]}
                         PreTag="div"
                         {...props}
