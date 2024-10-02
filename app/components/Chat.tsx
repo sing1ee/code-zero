@@ -11,8 +11,6 @@ import remarkGfm from 'remark-gfm'
 import { cn } from '../lib/utils'
 import { useCallback } from 'react'
 import './markdown.css'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { ComponentProps } from 'react'
 
 export function Chat() {
   const {
@@ -59,35 +57,23 @@ export function Chat() {
           >
             <div
               className={cn(
-                'flex max-w-[80%] flex-col rounded-lg p-4',
+                'flex max-w-[80%] flex-col overflow-x-auto rounded-lg p-4',
                 message.role === 'user'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-200 text-gray-800'
               )}
             >
-              <div className="markdown-body">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    code({
-                      className,
-                      children,
-                      inline,
-                    }: ComponentProps<'code'> & { inline?: boolean }) {
-                      const match = /language-(\w+)/.exec(className || '')
-                      return !inline && match ? (
-                        <SyntaxHighlighter language={match[1]} PreTag="div">
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code className={className}>{children}</code>
-                      )
-                    },
-                  }}
-                >
+              {message.role !== 'user' ? (
+                <div className="markdown-body">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <div className="whitespace-pre-wrap break-words p-2 font-mono text-sm">
                   {message.content}
-                </ReactMarkdown>
-              </div>
+                </div>
+              )}
             </div>
             {message.role !== 'user' && (
               <button
