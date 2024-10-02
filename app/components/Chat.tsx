@@ -2,15 +2,29 @@
 
 import { useChat } from 'ai/react'
 import { Button } from './ui/button'
-import { Input } from './ui/input'
+import { Textarea } from './ui/textarea'
 import { ScrollArea } from './ui/scroll-area'
 import IconStop from './IconStop'
+import IconDelete from './IconDelete'
+import ReactMarkdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
+import { cn } from '../lib/utils'
 
 export function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
-    useChat({
-      keepLastMessageOnError: true,
-    })
+  const {
+    messages,
+    setMessages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    isLoading,
+    stop,
+  } = useChat({
+    keepLastMessageOnError: true,
+  })
+  const handleDelete = (id) => {
+    setMessages(messages.filter((message) => message.id !== id))
+  }
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     handleSubmit(e)
@@ -22,19 +36,42 @@ export function Chat() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`mb-4 ${
-              message.role === 'user' ? 'text-right' : 'text-left'
-            }`}
+            className={cn(
+              'mb-4',
+              message.role === 'user'
+                ? 'flex justify-end'
+                : 'flex justify-start'
+            )}
           >
             <div
-              className={`inline-block rounded-lg p-2 ${
+              className={cn(
+                'inline-block max-w-[80%] rounded-lg p-2',
                 message.role === 'user'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-200 text-gray-800'
-              }`}
+              )}
             >
-              {message.content}
+              <ReactMarkdown
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                  p: ({ children }) => (
+                    <span className="block whitespace-pre-wrap">
+                      {children}
+                    </span>
+                  ),
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
             </div>
+            {message.role !== 'user' && (
+              <button
+                onClick={() => handleDelete(message.id)}
+                className="ml-2 self-start"
+              >
+                <IconDelete className="h-4 w-4 text-gray-500" />
+              </button>
+            )}
           </div>
         ))}
       </ScrollArea>
@@ -53,7 +90,7 @@ export function Chat() {
               </button>
             </div>
           )}
-          <Input
+          <Textarea
             className="flex-grow"
             value={input}
             onChange={handleInputChange}
