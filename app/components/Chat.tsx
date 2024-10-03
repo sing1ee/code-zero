@@ -5,17 +5,18 @@ import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
 import { ScrollArea } from './ui/scroll-area'
 import IconStop from './IconStop'
-import IconDelete from './IconDelete'
+import IconRefresh from './IconRefresh'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { cn } from '../lib/utils'
 import { useCallback } from 'react'
 import './markdown.css'
+import IconSend from './IconSend'
 
 export function Chat() {
   const {
     messages,
-    setMessages,
+    reload,
     input,
     handleInputChange,
     handleSubmit,
@@ -24,9 +25,6 @@ export function Chat() {
   } = useChat({
     keepLastMessageOnError: true,
   })
-  const handleDelete = (id: string) => {
-    setMessages(messages.filter((message) => message.id !== id))
-  }
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     handleSubmit(e)
@@ -44,7 +42,7 @@ export function Chat() {
 
   return (
     <div className="flex h-full flex-col">
-      <ScrollArea className="flex-grow p-4">
+      <ScrollArea className="relative flex-grow p-4">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -70,47 +68,57 @@ export function Chat() {
                   </ReactMarkdown>
                 </div>
               ) : (
-                <div className="whitespace-pre-wrap break-words p-2 font-mono text-sm">
+                <div className="whitespace-pre-wrap break-words p-0 font-mono text-sm">
                   {message.content}
                 </div>
               )}
             </div>
             {message.role !== 'user' && (
-              <button
-                onClick={() => handleDelete(message.id)}
-                className="ml-2 self-start"
+              <Button
+                onClick={(e) => {
+                  e.preventDefault()
+                  reload()
+                }}
+                variant="ghost"
+                size="icon"
+                className="ml-2 self-start p-0 hover:bg-gray-200"
               >
-                <IconDelete className="h-4 w-4 text-gray-500" />
-              </button>
+                <IconRefresh className="h-4 w-4" />
+              </Button>
             )}
           </div>
         ))}
+        {isLoading && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 transform">
+            <button
+              type="button"
+              onClick={() => stop()}
+              className="rounded-full p-2 transition-colors hover:bg-gray-200"
+              aria-label="Stop generation"
+            >
+              <IconStop />
+            </button>
+          </div>
+        )}
       </ScrollArea>
 
       <form onSubmit={handleFormSubmit} className="border-t p-4">
-        <div className="flex space-x-2">
-          {isLoading && (
-            <div className="flex items-center justify-center">
-              <button
-                type="button"
-                onClick={() => stop()}
-                className="rounded-full p-2 transition-colors hover:bg-gray-200"
-                aria-label="Stop generation"
-              >
-                <IconStop />
-              </button>
-            </div>
-          )}
+        <div className="relative">
           <Textarea
-            className="flex-grow"
+            className="pr-12"
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="Type your message... (Cmd/Ctrl + Enter to send)"
             disabled={isLoading}
           />
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? 'Sending...' : 'Send'}
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="absolute bottom-2 right-2 p-2"
+            aria-label="Send message"
+          >
+            <IconSend />
           </Button>
         </div>
       </form>
