@@ -13,7 +13,11 @@ import { useCallback } from 'react'
 import './markdown.css'
 import IconSend from './IconSend'
 
-export function Chat() {
+interface ChatProps {
+  systemPrompt?: string
+}
+
+export function Chat({ systemPrompt }: ChatProps) {
   const {
     messages,
     reload,
@@ -23,6 +27,9 @@ export function Chat() {
     isLoading,
     stop,
   } = useChat({
+    initialMessages: systemPrompt
+      ? [{ id: 'system', role: 'system', content: systemPrompt }]
+      : undefined,
     keepLastMessageOnError: true,
   })
 
