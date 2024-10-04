@@ -27,12 +27,12 @@ export function Chat({ sessionId }: ChatProps) {
   useEffect(() => {
     const fetchInitialMessages = async () => {
       try {
-        const response = await fetch(`/api/messages?sessionId=${sessionId}`, {
+        const response = await fetch(`/api/messages/${sessionId}`, {
           method: 'GET',
         })
         if (!response.ok) throw new Error('Failed to fetch messages')
-        const messages: Message[] = await response.json()
-        setInitialMessages(messages)
+        const data = await response.json()
+        setInitialMessages(data.messages)
       } catch (error) {
         console.error('Error fetching initial messages:', error)
         // Handle error (e.g., show error message to user)
