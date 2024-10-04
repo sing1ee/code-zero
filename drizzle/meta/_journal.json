@@ -15,6 +15,13 @@
       "when": 1727969504984,
       "tag": "0001_wild_lily_hollister",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1728047330029,
+      "tag": "0002_green_carlie_cooper",
+      "breakpoints": true
     }
   ]
 }

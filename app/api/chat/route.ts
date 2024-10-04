@@ -1,7 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { convertToCoreMessages, streamText } from 'ai'
+import { convertToCoreMessages, streamText, CoreMessage } from 'ai'
 import { NextResponse } from 'next/server'
-import { getSession } from '../../lib/db'
+import { getSession, saveMessages } from '../../lib/db'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30
@@ -14,16 +14,18 @@ const openai = createOpenAI({
 export async function POST(req: Request) {
   try {
     const { messages, sessionId } = await req.json()
-    // get system prompt from session
     const session = await getSession(sessionId)
-
+    const newMessages = convertToCoreMessages(messages)
     const result = await streamText({
       model: openai(process.env.MODEL_ID as string),
       system: session?.systemPrompt || 'You are a helpful assistant.',
-      messages: convertToCoreMessages(messages),
-      async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
-        // implement your own storage logic:
-        // await saveChat({ text, toolCalls, toolResults });
+      messages: newMessages,
+      async onFinish({ text }) {
+        const updatedMessages: CoreMessage[] = [
+          ...newMessages,
+          { role: 'assistant', content: text },
+        ]
+        await saveMessages(sessionId, updatedMessages)
       },
     })
 

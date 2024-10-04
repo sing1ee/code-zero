@@ -1,7 +1,8 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
-import { chatSessions } from './schema'
-import { eq } from 'drizzle-orm'
+import { chatSessions, chatMessages } from './schema'
+import { eq, sql } from 'drizzle-orm'
+import { CoreMessage } from 'ai'
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -17,4 +18,24 @@ export const getSession = async (id: string) => {
     .limit(1)
 
   return sessions[0] || null
+}
+
+export const saveMessages = async (
+  sessionId: string,
+  messages: CoreMessage[]
+) => {
+  await db
+    .insert(chatMessages)
+    .values({
+      sessionId,
+      messages,
+      updatedAt: new Date(),
+    })
+    .onConflictDoUpdate({
+      target: chatMessages.sessionId,
+      set: {
+        messages: sql`${messages}::jsonb`,
+        updatedAt: sql`CURRENT_TIMESTAMP`,
+      },
+    })
 }
