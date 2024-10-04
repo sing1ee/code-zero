@@ -21,10 +21,10 @@ export async function POST(req: Request) {
       model: openai(process.env.MODEL_ID as string),
       system: session?.systemPrompt || 'You are a helpful assistant.',
       messages: convertToCoreMessages(messages),
-      // async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
-      //   // implement your own storage logic:
-      //   // await saveChat({ text, toolCalls, toolResults });
-      // },
+      async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
+        // implement your own storage logic:
+        // await saveChat({ text, toolCalls, toolResults });
+      },
     })
 
     return result.toDataStreamResponse()

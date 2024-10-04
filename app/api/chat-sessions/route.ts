@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { db } from '../../db'
-import { chatSessions } from '../../db/schema'
+import { db } from '../../lib/db'
+import { chatSessions } from '../../lib/db/schema'
 import { eq } from 'drizzle-orm'
 
 // 创建新会话
