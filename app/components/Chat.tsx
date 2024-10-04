@@ -1,6 +1,6 @@
 'use client'
-
-import { useChat } from 'ai/react'
+import { useEffect, useState } from 'react'
+import { useChat, Message } from 'ai/react'
 import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
 import { ScrollArea } from './ui/scroll-area'
@@ -15,11 +15,35 @@ import IconSend from './IconSend'
 import { CollapsibleUserMessage } from './CollapsibleUserMessage'
 
 interface ChatProps {
-  key?: string
+  sessionId?: string
   systemPrompt?: string
 }
 
-export function Chat({ key }: ChatProps) {
+export function Chat({ sessionId }: ChatProps) {
+  console.log('sessionId', sessionId)
+  const [initialMessages, setInitialMessages] = useState<Message[]>([])
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchInitialMessages = async () => {
+      try {
+        const response = await fetch(`/api/messages?sessionId=${sessionId}`, {
+          method: 'GET',
+        })
+        if (!response.ok) throw new Error('Failed to fetch messages')
+        const messages: Message[] = await response.json()
+        setInitialMessages(messages)
+      } catch (error) {
+        console.error('Error fetching initial messages:', error)
+        // Handle error (e.g., show error message to user)
+      } finally {
+        setIsInitialLoading(false)
+      }
+    }
+
+    fetchInitialMessages()
+  }, [sessionId])
+
   const {
     messages,
     reload,
@@ -29,13 +53,14 @@ export function Chat({ key }: ChatProps) {
     isLoading,
     stop,
   } = useChat({
+    initialMessages,
     keepLastMessageOnError: true,
   })
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     handleSubmit(e, {
       body: {
-        sessionId: key,
+        sessionId: sessionId,
       },
     })
   }
@@ -46,17 +71,18 @@ export function Chat({ key }: ChatProps) {
         e.preventDefault()
         handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>, {
           body: {
-            sessionId: key,
+            sessionId: sessionId,
           },
         })
       }
     },
-    [handleSubmit, isLoading, key]
+    [handleSubmit, isLoading, sessionId]
   )
 
   return (
     <div className="flex h-full flex-col">
       <ScrollArea className="relative flex-grow p-4">
+        {isInitialLoading && <div>Loading chat history...</div>}
         {messages.map((message) => (
           <div
             key={message.id}

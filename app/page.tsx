@@ -142,7 +142,7 @@ function HomeContent() {
       <main className="flex flex-1 flex-col overflow-hidden lg:flex-row">
         {/* 对话区域 */}
         <section className="flex-1 overflow-auto p-4">
-          <Chat key={currentSession?.id} />
+          <Chat sessionId={currentSession?.id} />
         </section>
 
         {/* 图形展示区域 */}

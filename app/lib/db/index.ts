@@ -24,18 +24,30 @@ export const saveMessages = async (
   sessionId: string,
   messages: CoreMessage[]
 ) => {
+  const serializedMessages = JSON.stringify(messages)
+
   await db
     .insert(chatMessages)
     .values({
       sessionId,
-      messages,
+      messages: sql`${serializedMessages}::jsonb`,
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
       target: chatMessages.sessionId,
       set: {
-        messages: sql`${messages}::jsonb`,
+        messages: sql`${serializedMessages}::jsonb`,
         updatedAt: sql`CURRENT_TIMESTAMP`,
       },
     })
+}
+
+// 根据 sessionid，获取所有消息
+export const getMessages = async (sessionId: string) => {
+  const messages = await db
+    .select()
+    .from(chatMessages)
+    .where(eq(chatMessages.sessionId, sessionId))
+    .limit(1)
+  return messages[0]?.messages || []
 }
