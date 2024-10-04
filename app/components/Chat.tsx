@@ -15,10 +15,11 @@ import IconSend from './IconSend'
 import { CollapsibleUserMessage } from './CollapsibleUserMessage'
 
 interface ChatProps {
+  key?: string
   systemPrompt?: string
 }
 
-export function Chat({ systemPrompt }: ChatProps) {
+export function Chat({ key }: ChatProps) {
   const {
     messages,
     reload,
@@ -28,24 +29,29 @@ export function Chat({ systemPrompt }: ChatProps) {
     isLoading,
     stop,
   } = useChat({
-    initialMessages: systemPrompt
-      ? [{ id: 'system', role: 'system', content: systemPrompt }]
-      : undefined,
     keepLastMessageOnError: true,
   })
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    handleSubmit(e)
+    handleSubmit(e, {
+      body: {
+        sessionId: key,
+      },
+    })
   }
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !isLoading) {
         e.preventDefault()
-        handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
+        handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>, {
+          body: {
+            sessionId: key,
+          },
+        })
       }
     },
-    [handleSubmit, isLoading]
+    [handleSubmit, isLoading, key]
   )
 
   return (
