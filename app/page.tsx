@@ -47,13 +47,7 @@ function HomeContent() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const router = useRouter()
-  const {
-    sessions,
-    currentSession,
-    createSession,
-    switchSession,
-    updateSessionName,
-  } = useChatSession()
+  const { currentSession, createSession } = useChatSession()
 
   const [newSessionName, setNewSessionName] = useState('')
   const [newSystemPrompt, setNewSystemPrompt] = useState('')

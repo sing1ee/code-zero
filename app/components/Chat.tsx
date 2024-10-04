@@ -12,6 +12,7 @@ import { cn } from '../lib/utils'
 import { useCallback } from 'react'
 import './markdown.css'
 import IconSend from './IconSend'
+import { CollapsibleUserMessage } from './CollapsibleUserMessage'
 
 interface ChatProps {
   systemPrompt?: string
@@ -55,7 +56,7 @@ export function Chat({ systemPrompt }: ChatProps) {
             key={message.id}
             className={cn(
               'mb-4',
-              message.role === 'user'
+              message.role === 'user' || message.role === 'system'
                 ? 'flex justify-end'
                 : 'flex justify-start'
             )}
@@ -63,24 +64,23 @@ export function Chat({ systemPrompt }: ChatProps) {
             <div
               className={cn(
                 'flex max-w-[80%] flex-col overflow-x-auto rounded-lg p-4',
-                message.role === 'user'
+                message.role === 'user' || message.role === 'system'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-200 text-gray-800'
               )}
             >
-              {message.role !== 'user' ? (
+              {message.role === 'assistant' && (
                 <div className="markdown-body">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {message.content}
                   </ReactMarkdown>
                 </div>
-              ) : (
-                <div className="whitespace-pre-wrap break-words p-0 font-mono text-sm">
-                  {message.content}
-                </div>
+              )}
+              {(message.role === 'user' || message.role === 'system') && (
+                <CollapsibleUserMessage content={message.content} />
               )}
             </div>
-            {message.role !== 'user' && (
+            {message.role === 'assistant' && (
               <Button
                 onClick={(e) => {
                   e.preventDefault()
