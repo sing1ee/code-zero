@@ -4,14 +4,14 @@ import { useChat, Message } from 'ai/react'
 import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
 import { ScrollArea } from './ui/scroll-area'
-import IconStop from './IconStop'
-import IconRefresh from './IconRefresh'
+import IconStop from './icon/IconStop'
+import IconRefresh from './icon/IconRefresh'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { cn } from '../lib/utils'
 import { useCallback } from 'react'
 import './markdown.css'
-import IconSend from './IconSend'
+import IconSend from './icon/IconSend'
 import { CollapsibleUserMessage } from './CollapsibleUserMessage'
 
 interface ChatProps {
@@ -83,9 +83,9 @@ export function Chat({ sessionId }: ChatProps) {
     <div className="flex h-full flex-col">
       <ScrollArea className="relative flex-grow p-4">
         {isInitialLoading && <div>Loading chat history...</div>}
-        {messages.map((message) => (
+        {messages.map((message, index) => (
           <div
-            key={message.id}
+            key={message.id || `message-${index}`}
             className={cn(
               'mb-4',
               message.role === 'user' || message.role === 'system'
