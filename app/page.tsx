@@ -3,25 +3,8 @@
 import { useState } from 'react'
 import { Button } from './components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './components/ui/sheet'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from './components/ui/popover'
-import { Textarea } from './components/ui/textarea'
-import { ScrollArea } from './components/ui/scroll-area'
 import { Chat } from './components/Chat'
-import {
-  Menu,
-  Plus,
-  History,
-  MessageSquare,
-  Settings,
-  LogOut,
-  Sun,
-  Moon,
-  Trash2,
-} from 'lucide-react'
+import { Menu, Plus } from 'lucide-react'
 import Image from 'next/image'
 import favicon from './favicon.svg'
 import AuthLayout from './layouts/AuthLayout'
@@ -30,9 +13,10 @@ import {
   ChatSessionProvider,
   useChatSession,
 } from './contexts/ChatSessionContext'
-import { Input } from './components/ui/input'
-import { Label } from './components/ui/label'
-
+import { SettingsPopover } from './components/SettingsPopover'
+import { FeedbackPopover } from './components/FeedbackPopover'
+import { HistoryPopover } from './components/HistoryPopover'
+import { NavButton } from './components/NavButton'
 export default function Home() {
   return (
     <AuthLayout>
@@ -177,211 +161,5 @@ function Logo() {
     <div className="mb-8 text-2xl font-bold">
       <Image src={favicon.src} alt="favicon" width={32} height={32} />
     </div>
-  )
-}
-interface NavButtonProps {
-  icon: React.ReactNode
-  label: string
-  onClick: () => void
-  newSessionName: string
-  setNewSessionName: (name: string) => void
-  newSystemPrompt: string
-  setNewSystemPrompt: (prompt: string) => void
-}
-
-function NavButton({
-  icon,
-  label,
-  onClick,
-  newSessionName,
-  setNewSessionName,
-  newSystemPrompt,
-  setNewSystemPrompt,
-}: NavButtonProps) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="flex w-full flex-col items-center"
-        >
-          {icon}
-          <span className="sr-only">{label}</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <div>
-          <Label htmlFor="newSessionName">New Session Name</Label>
-          <Input
-            id="newSessionName"
-            value={newSessionName}
-            onChange={(e) => setNewSessionName(e.target.value)}
-            className="mb-2"
-          />
-        </div>
-        <div>
-          <Label htmlFor="newSystemPrompt">System Prompt</Label>
-          <Textarea
-            id="newSystemPrompt"
-            value={newSystemPrompt}
-            onChange={(e) => setNewSystemPrompt(e.target.value)}
-            className="mb-2"
-          />
-        </div>
-        <Button onClick={onClick} className="w-full">
-          Create New Session
-        </Button>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-interface PopoverProps {
-  isMobile: boolean
-  onClose: () => void
-}
-
-function HistoryPopover({ isMobile, onClose }: PopoverProps) {
-  const { sessions, switchSession, updateSessionName, deleteSession } =
-    useChatSession()
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="flex w-full flex-col items-center"
-          onClick={isMobile ? onClose : undefined}
-        >
-          <History />
-          <span className="sr-only">History</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <h3 className="mb-2 font-semibold">Thinking History</h3>
-        <ScrollArea className="h-[200px]">
-          <div className="space-y-2">
-            {sessions.map((session) => (
-              <div key={session.id} className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  className="flex-grow justify-start"
-                  onClick={() => {
-                    switchSession(session.id)
-                    if (isMobile) onClose()
-                  }}
-                >
-                  {session.name}
-                </Button>
-                <Input
-                  value={session.name}
-                  onChange={(e) =>
-                    updateSessionName(session.id, e.target.value)
-                  }
-                  className="w-1/2"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => deleteSession(session.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-function FeedbackPopover({ isMobile, onClose }: PopoverProps) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="flex w-full flex-col items-center"
-          onClick={isMobile ? onClose : undefined}
-        >
-          <MessageSquare />
-          <span className="sr-only">Feedback</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <h3 className="mb-2 font-semibold">Provide Feedback</h3>
-        <Textarea placeholder="Your feedback..." className="mb-2" />
-        <Button className="w-full">Submit</Button>
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-interface SettingsPopoverProps extends PopoverProps {
-  isMobile: boolean
-  onClose: () => void
-  toggleTheme: () => void
-  isDarkMode: boolean
-  handleLogout: () => void
-}
-
-function SettingsPopover({
-  isMobile,
-  onClose,
-  toggleTheme,
-  isDarkMode,
-  handleLogout,
-}: SettingsPopoverProps) {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="flex w-full flex-col items-center"
-          onClick={isMobile ? onClose : undefined}
-        >
-          <Settings />
-          <span className="sr-only">Settings</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <h3 className="mb-2 font-semibold">Settings</h3>
-        <div className="space-y-2">
-          <Button variant="outline" className="w-full justify-start">
-            Account Information
-          </Button>
-          <Button variant="outline" className="w-full justify-start">
-            Billing Information
-          </Button>
-          <Button variant="outline" className="w-full justify-start">
-            Pricing
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={handleLogout}
-          >
-            <LogOut className="mr-2 h-4 w-4" /> Log Out
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full justify-start"
-            onClick={toggleTheme}
-          >
-            {isDarkMode ? (
-              <Sun className="mr-2 h-4 w-4" />
-            ) : (
-              <Moon className="mr-2 h-4 w-4" />
-            )}
-            {isDarkMode ? 'Light Mode' : 'Dark Mode'}
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
   )
 }

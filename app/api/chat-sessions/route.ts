@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '../../lib/db'
 import { chatSessions } from '../../lib/db/schema'
 import { eq } from 'drizzle-orm'
-
+import { chatMessages } from '../../lib/db/schema'
 // 创建新会话
 export async function POST(request: Request) {
   const { name, systemPrompt } = await request.json()
@@ -74,7 +74,8 @@ export async function DELETE(request: Request) {
       .delete(chatSessions)
       .where(eq(chatSessions.id, id))
       .returning()
-
+    // 删除会话时，删除所有相关的对话记录
+    await db.delete(chatMessages).where(eq(chatMessages.sessionId, id))
     if (!deletedSession) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
