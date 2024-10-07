@@ -20,7 +20,7 @@ interface ChatProps {
 }
 
 export function Chat({ sessionId }: ChatProps) {
-  console.log('sessionId', sessionId)
+  console.log('Chat sessionId', sessionId)
   const [initialMessages, setInitialMessages] = useState<Message[]>([])
   const [isInitialLoading, setIsInitialLoading] = useState(true)
 

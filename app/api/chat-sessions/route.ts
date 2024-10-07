@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { db } from '../../lib/db'
-import { chatSessions } from '../../lib/db/schema'
+import { chatSessions, chatMessages } from '../../lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { chatMessages } from '../../lib/db/schema'
-// 创建新会话
+import { SessionType } from '../../types/ChatSession'
+
+// Create new session
 export async function POST(request: Request) {
-  const { name, systemPrompt } = await request.json()
+  const { name, systemPrompt, type } = await request.json()
 
   try {
     const [newSession] = await db
@@ -13,6 +14,7 @@ export async function POST(request: Request) {
       .values({
         name,
         systemPrompt,
+        type: type as SessionType,
       })
       .returning()
 

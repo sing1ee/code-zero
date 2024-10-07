@@ -7,12 +7,16 @@ import React, {
   useCallback,
   useEffect,
 } from 'react'
-import { ChatSession } from '../types/ChatSession'
+import { ChatSession, SessionType } from '../types/ChatSession'
 
 interface ChatSessionContextType {
   sessions: ChatSession[]
   currentSession: ChatSession | null
-  createSession: (name: string, systemPrompt: string) => Promise<void>
+  createSession: (
+    name: string,
+    systemPrompt: string,
+    type: SessionType
+  ) => Promise<void>
   switchSession: (id: string) => void
   updateSessionName: (id: string, name: string) => Promise<void>
   deleteSession: (id: string) => Promise<void>
@@ -43,11 +47,11 @@ export function ChatSessionProvider({
   }
 
   const createSession = useCallback(
-    async (name: string, systemPrompt: string) => {
+    async (name: string, systemPrompt: string, type: SessionType) => {
       const response = await fetch('/api/chat-sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, systemPrompt }),
+        body: JSON.stringify({ name, systemPrompt, type }),
       })
       if (response.ok) {
         const newSession = await response.json()

@@ -17,6 +17,8 @@ import { SettingsPopover } from './components/SettingsPopover'
 import { FeedbackPopover } from './components/FeedbackPopover'
 import { HistoryPopover } from './components/HistoryPopover'
 import { NavButton } from './components/NavButton'
+import { SessionType } from './types/ChatSession'
+
 export default function Home() {
   return (
     <AuthLayout>
@@ -35,6 +37,8 @@ function HomeContent() {
 
   const [newSessionName, setNewSessionName] = useState('')
   const [newSystemPrompt, setNewSystemPrompt] = useState('')
+  const [newSessionType, setNewSessionType] =
+    useState<SessionType>('text_assistant')
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
@@ -48,12 +52,21 @@ function HomeContent() {
 
   const handleCreateSession = () => {
     if (newSessionName && newSystemPrompt) {
-      createSession(newSessionName, newSystemPrompt)
+      createSession(newSessionName, newSystemPrompt, newSessionType)
       setNewSessionName('')
       setNewSystemPrompt('')
+      setNewSessionType('text_assistant')
       setIsMobileMenuOpen(false)
     }
   }
+
+  const sessionTypeOptions: { value: SessionType; label: string }[] = [
+    { value: 'text_assistant', label: 'Text Assistant' },
+    { value: 'mermaid_assistant', label: 'Mermaid Assistant' },
+    { value: 'svg_card_assistant', label: 'SVG Card Assistant' },
+    { value: 'development_assistant', label: 'Development Assistant' },
+    { value: 'chatbot', label: 'Chatbot' },
+  ]
 
   return (
     <div className={`flex h-screen ${isDarkMode ? 'dark' : ''}`}>
@@ -62,12 +75,16 @@ function HomeContent() {
         <Logo />
         <NavButton
           icon={<Plus />}
-          label="New Chat"
           onClick={handleCreateSession}
           newSessionName={newSessionName}
           setNewSessionName={setNewSessionName}
           newSystemPrompt={newSystemPrompt}
           setNewSystemPrompt={setNewSystemPrompt}
+          newSessionType={newSessionType}
+          setNewSessionType={setNewSessionType}
+          sessionTypeOptions={sessionTypeOptions}
+          isMobile={true}
+          onClose={() => setIsMobileMenuOpen(false)}
         />
         <HistoryPopover isMobile={false} onClose={() => {}} />
         <FeedbackPopover isMobile={false} onClose={() => {}} />
@@ -96,12 +113,16 @@ function HomeContent() {
             <Logo />
             <NavButton
               icon={<Plus />}
-              label="New Chat"
               onClick={handleCreateSession}
               newSessionName={newSessionName}
               setNewSessionName={setNewSessionName}
               newSystemPrompt={newSystemPrompt}
               setNewSystemPrompt={setNewSystemPrompt}
+              newSessionType={newSessionType}
+              setNewSessionType={setNewSessionType}
+              sessionTypeOptions={sessionTypeOptions}
+              isMobile={true}
+              onClose={() => setIsMobileMenuOpen(false)}
             />
             <HistoryPopover
               isMobile={true}
