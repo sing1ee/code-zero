@@ -18,6 +18,7 @@ import { FeedbackPopover } from './components/FeedbackPopover'
 import { HistoryPopover } from './components/HistoryPopover'
 import { NavButton } from './components/NavButton'
 import { SessionType } from './types/ChatSession'
+import { Welcome } from './components/Welcome'
 
 export default function Home() {
   return (
@@ -143,12 +144,25 @@ function HomeContent() {
         </SheetContent>
       </Sheet>
 
-      {/* 主要内容区域 */}
-      <Chat
-        sessionId={currentSession?.id}
-        sessionName={currentSession?.name}
-        sessionType={currentSession?.type}
-      />
+      {/* Main content area */}
+      {currentSession ? (
+        <Chat
+          sessionId={currentSession.id}
+          sessionName={currentSession.name}
+          sessionType={currentSession.type}
+        />
+      ) : (
+        <Welcome
+          onCreateSession={handleCreateSession}
+          newSessionName={newSessionName}
+          setNewSessionName={setNewSessionName}
+          newSystemPrompt={newSystemPrompt}
+          setNewSystemPrompt={setNewSystemPrompt}
+          newSessionType={newSessionType}
+          setNewSessionType={setNewSessionType}
+          sessionTypeOptions={sessionTypeOptions}
+        />
+      )}
     </div>
   )
 }
