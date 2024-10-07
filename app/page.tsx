@@ -18,7 +18,7 @@ import { FeedbackPopover } from './components/FeedbackPopover'
 import { HistoryPopover } from './components/HistoryPopover'
 import { NavButton } from './components/NavButton'
 import { SessionType } from './types/ChatSession'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs'
+import { CollapsibleSidebar } from './components/CollapsibleSidebar'
 
 export default function Home() {
   return (
@@ -146,58 +146,15 @@ function HomeContent() {
 
       {/* 主要内容区域 */}
       <main className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-        {/* 对话区域 */}
-        <section className="flex-1 overflow-auto p-4">
-          <Chat
-            sessionId={currentSession?.id}
-            sessionName={currentSession?.name}
-          />
-        </section>
-
-        {/* 图形展示区域 */}
-        <section className="flex-1 overflow-hidden bg-gray-50 p-4 dark:bg-gray-700">
-          <Tabs defaultValue="source" className="h-[calc(100%-2rem)]">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="source">Source</TabsTrigger>
-              <TabsTrigger value="preview">Preview</TabsTrigger>
-            </TabsList>
-            <TabsContent
-              value="source"
-              className="h-[calc(100%-2rem)] overflow-auto"
-            >
-              <div className="h-full rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-                <pre className="h-full overflow-auto">
-                  <code>
-                    {/* Here you can add the source code */}
-                    {`// Source code will be displayed here
-function example() {
-  console.log("Hello, World!");
-}`}
-                  </code>
-                </pre>
-              </div>
-            </TabsContent>
-            <TabsContent
-              value="preview"
-              className="h-[calc(100%-2rem)] space-y-4 overflow-auto"
-            >
-              <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-                <h3 className="mb-2 text-lg font-semibold">
-                  Relationship Diagram
-                </h3>
-                <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-500">
-                  Mermaid Diagram Placeholder
-                </div>
-              </div>
-              <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-                <h3 className="mb-2 text-lg font-semibold">Inspiration Map</h3>
-                <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-500">
-                  SVG Inspiration Map Placeholder
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </section>
+        <CollapsibleSidebar sessionType={currentSession?.type || 'chatbot'}>
+          {/* 对话区域 */}
+          <section className="flex-1 overflow-auto p-4">
+            <Chat
+              sessionId={currentSession?.id}
+              sessionName={currentSession?.name}
+            />
+          </section>
+        </CollapsibleSidebar>
       </main>
     </div>
   )
