@@ -5,12 +5,12 @@ Code Zero is a Next.js-based web application that provides an innovative platfor
 ## Features
 
 - User authentication (login and registration)
-- Interactive thinking sessions
-- Visualization of thoughts and ideas
+- Interactive chat sessions with different AI assistants
+- Visualization of thoughts and ideas using Mermaid diagrams and SVG cards
 - Dark mode support
 - Responsive design for both desktop and mobile
-- Secure password hashing and JWT-based authentication
-- Real-time updates using Supabase (planned)
+- Secure JWT-based authentication
+- Real-time updates and chat history
 
 ## Technologies Used
 
@@ -21,9 +21,10 @@ Code Zero is a Next.js-based web application that provides an innovative platfor
 - [Shadcn UI](https://ui.shadcn.com/) for UI components
 - [Drizzle ORM](https://orm.drizzle.team/) for database operations
 - [PostgreSQL](https://www.postgresql.org/) as the database
-- [Bcrypt.js](https://github.com/dcodeIO/bcrypt.js/) for password hashing
 - [JSON Web Tokens (JWT)](https://jwt.io/) for authentication
 - [Radix UI](https://www.radix-ui.com/) for accessible UI primitives
+- [Vercel AI SDK](https://sdk.vercel.ai/) for AI-powered chat functionality
+- [Mermaid](https://mermaid-js.github.io/mermaid/#/) for diagram generation
 
 ## Getting Started
 
@@ -74,17 +75,35 @@ Code Zero is a Next.js-based web application that provides an innovative platfor
 ## Project Structure
 
 - `app/`: Contains the main application code
-  - `api/`: API routes for authentication and other server-side operations
+  - `api/`: API routes for authentication, chat sessions, and other server-side operations
   - `auth/`: Authentication-related pages (login, register)
   - `components/`: Reusable React components
   - `layouts/`: Layout components (e.g., AuthLayout)
   - `lib/`: Utility functions, database configuration, and schemas
+  - `contexts/`: React context providers (e.g., ChatSessionContext)
+  - `types/`: TypeScript type definitions
 - `public/`: Static assets
 - `drizzle/`: Database migration files
 
-## Authentication
+## Features
+
+### Authentication
 
 The application uses JWT-based authentication. Users can register and login, and the JWT token is stored in the browser's local storage. The AuthLayout component ensures that protected routes are only accessible to authenticated users.
+
+### Chat Sessions
+
+Users can create and manage multiple chat sessions with different AI assistants, including:
+
+- Text Assistant
+- Mermaid Assistant (for diagram generation)
+- SVG Card Assistant
+- Development Assistant
+- Chatbot
+
+### Responsive Design
+
+The application features a responsive design that works well on both desktop and mobile devices. It includes a collapsible sidebar for easy navigation on smaller screens.
 
 ## Development
 
