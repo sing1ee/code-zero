@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   Collapsible,
   CollapsibleContent,
@@ -10,10 +10,15 @@ import { ChevronRight, ChevronLeft } from 'lucide-react'
 import { Button } from './ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { SessionType } from '../types/ChatSession'
+import { Message } from 'ai'
+import dynamic from 'next/dynamic'
+
+const MermaidWrapper = dynamic(() => import('./MermaidWrapper'), { ssr: false })
 
 interface CollapsibleSidebarProps {
   sessionType: SessionType
   children: React.ReactNode
+  lastAssistantMessage?: Message
 }
 
 const EXPANDABLE_SESSION_TYPES: SessionType[] = [
@@ -26,12 +31,44 @@ const EXPANDABLE_SESSION_TYPES: SessionType[] = [
 function CollapsibleSidebar({
   sessionType,
   children,
+  lastAssistantMessage,
 }: CollapsibleSidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [code, setCode] = useState('')
+  const [codeType, setCodeType] = useState<'svg' | 'mermaid' | null>(null)
 
   useEffect(() => {
     setIsOpen(EXPANDABLE_SESSION_TYPES.includes(sessionType))
   }, [sessionType])
+
+  useEffect(() => {
+    if (lastAssistantMessage) {
+      const svgMatch = lastAssistantMessage.content.match(/<svg[\s\S]*<\/svg>/)
+      const mermaidMatch = lastAssistantMessage.content.match(
+        /```mermaid\n([\s\S]*?)```/
+      )
+
+      if (svgMatch) {
+        setCode(svgMatch[0])
+        setCodeType('svg')
+      } else if (mermaidMatch) {
+        setCode(mermaidMatch[1])
+        setCodeType('mermaid')
+      } else {
+        setCode('')
+        setCodeType(null)
+      }
+    }
+  }, [lastAssistantMessage])
+
+  const renderPreview = useCallback(() => {
+    if (codeType === 'svg') {
+      return <div dangerouslySetInnerHTML={{ __html: code }} />
+    } else if (codeType === 'mermaid') {
+      return <MermaidWrapper chart={code} />
+    }
+    return null
+  }, [code, codeType])
 
   const canExpand = EXPANDABLE_SESSION_TYPES.includes(sessionType)
 
@@ -60,12 +97,7 @@ function CollapsibleSidebar({
               >
                 <div className="h-full rounded-lg bg-white p-4 shadow dark:bg-gray-600">
                   <pre className="h-full overflow-auto">
-                    <code>
-                      {`// Source code will be displayed here
-function example() {
-  console.log("Hello, World!");
-}`}
-                    </code>
+                    <code>{code}</code>
                   </pre>
                 </div>
               </TabsContent>
@@ -74,20 +106,7 @@ function example() {
                 className="h-[calc(100%-2rem)] space-y-4 overflow-auto"
               >
                 <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-                  <h3 className="mb-2 text-lg font-semibold">
-                    Relationship Diagram
-                  </h3>
-                  <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-500">
-                    Mermaid Diagram Placeholder
-                  </div>
-                </div>
-                <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-                  <h3 className="mb-2 text-lg font-semibold">
-                    Inspiration Map
-                  </h3>
-                  <div className="flex h-40 items-center justify-center bg-gray-200 dark:bg-gray-500">
-                    SVG Inspiration Map Placeholder
-                  </div>
+                  {renderPreview()}
                 </div>
               </TabsContent>
             </Tabs>

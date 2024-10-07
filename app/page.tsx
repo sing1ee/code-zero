@@ -18,7 +18,6 @@ import { FeedbackPopover } from './components/FeedbackPopover'
 import { HistoryPopover } from './components/HistoryPopover'
 import { NavButton } from './components/NavButton'
 import { SessionType } from './types/ChatSession'
-import { CollapsibleSidebar } from './components/CollapsibleSidebar'
 
 export default function Home() {
   return (
@@ -145,17 +144,11 @@ function HomeContent() {
       </Sheet>
 
       {/* 主要内容区域 */}
-      <main className="flex flex-1 flex-col overflow-hidden lg:flex-row">
-        <CollapsibleSidebar sessionType={currentSession?.type || 'chatbot'}>
-          {/* 对话区域 */}
-          <section className="flex-1 overflow-auto p-4">
-            <Chat
-              sessionId={currentSession?.id}
-              sessionName={currentSession?.name}
-            />
-          </section>
-        </CollapsibleSidebar>
-      </main>
+      <Chat
+        sessionId={currentSession?.id}
+        sessionName={currentSession?.name}
+        sessionType={currentSession?.type}
+      />
     </div>
   )
 }
