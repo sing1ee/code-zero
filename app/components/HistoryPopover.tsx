@@ -31,26 +31,26 @@ export function HistoryPopover({ isMobile, onClose }: HistoryPopoverProps) {
       <PopoverContent className="w-80">
         <h3 className="mb-2 font-semibold">Thinking History</h3>
         <ScrollArea className="h-[200px]">
-          <div className="space-y-2">
+          <div className="space-y-2 pl-2 pt-2">
             {sessions.map((session) => (
               <div key={session.id} className="flex items-center space-x-2">
-                <Button
-                  variant="ghost"
-                  className="flex-grow justify-start"
-                  onClick={() => {
-                    switchSession(session.id)
-                    if (isMobile) onClose()
-                  }}
-                >
-                  {session.name}
-                </Button>
                 <Input
                   value={session.name}
                   onChange={(e) =>
                     updateSessionName(session.id, e.target.value)
                   }
-                  className="w-1/2"
+                  className="flex-grow"
                 />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    switchSession(session.id)
+                    if (isMobile) onClose()
+                  }}
+                >
+                  <History className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"

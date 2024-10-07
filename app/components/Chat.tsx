@@ -13,13 +13,15 @@ import { useCallback } from 'react'
 import './markdown.css'
 import IconSend from './icon/IconSend'
 import { CollapsibleUserMessage } from './CollapsibleUserMessage'
+import { Skeleton } from './ui/skeleton'
 
 interface ChatProps {
   sessionId?: string
   systemPrompt?: string
+  sessionName?: string // Add this line
 }
 
-export function Chat({ sessionId }: ChatProps) {
+export function Chat({ sessionId, sessionName }: ChatProps) {
   console.log('Chat sessionId', sessionId)
   const [initialMessages, setInitialMessages] = useState<Message[]>([])
   const [isInitialLoading, setIsInitialLoading] = useState(true)
@@ -82,51 +84,63 @@ export function Chat({ sessionId }: ChatProps) {
   return (
     <div className="flex h-full flex-col">
       <ScrollArea className="relative flex-grow p-4">
-        {isInitialLoading && <div>Loading chat history...</div>}
-        {messages.map((message, index) => (
-          <div
-            key={message.id || `message-${index}`}
-            className={cn(
-              'mb-4',
-              message.role === 'user' || message.role === 'system'
-                ? 'flex justify-end'
-                : 'flex justify-start'
-            )}
-          >
-            <div
-              className={cn(
-                'flex max-w-[80%] flex-col overflow-x-auto rounded-lg p-4',
-                message.role === 'user' || message.role === 'system'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 text-gray-800'
-              )}
-            >
-              {message.role === 'assistant' && (
-                <div className="markdown-body">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {message.content}
-                  </ReactMarkdown>
-                </div>
-              )}
-              {(message.role === 'user' || message.role === 'system') && (
-                <CollapsibleUserMessage content={message.content} />
-              )}
-            </div>
-            {message.role === 'assistant' && (
-              <Button
-                onClick={(e) => {
-                  e.preventDefault()
-                  reload()
-                }}
-                variant="ghost"
-                size="icon"
-                className="ml-2 self-start p-0 hover:bg-gray-200"
-              >
-                <IconRefresh className="h-4 w-4" />
-              </Button>
-            )}
+        {isInitialLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <Skeleton className="h-8 w-48" />
           </div>
-        ))}
+        ) : (
+          <>
+            {sessionName && (
+              <h2 className="mb-4 text-center text-xl font-semibold">
+                {sessionName}
+              </h2>
+            )}
+            {messages.map((message, index) => (
+              <div
+                key={message.id || `message-${index}`}
+                className={cn(
+                  'mb-4',
+                  message.role === 'user' || message.role === 'system'
+                    ? 'flex justify-end'
+                    : 'flex justify-start'
+                )}
+              >
+                <div
+                  className={cn(
+                    'flex max-w-[80%] flex-col overflow-x-auto rounded-lg p-4',
+                    message.role === 'user' || message.role === 'system'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-200 text-gray-800'
+                  )}
+                >
+                  {message.role === 'assistant' && (
+                    <div className="markdown-body">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {message.content}
+                      </ReactMarkdown>
+                    </div>
+                  )}
+                  {(message.role === 'user' || message.role === 'system') && (
+                    <CollapsibleUserMessage content={message.content} />
+                  )}
+                </div>
+                {message.role === 'assistant' && (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      reload()
+                    }}
+                    variant="ghost"
+                    size="icon"
+                    className="ml-2 self-start p-0 hover:bg-gray-200"
+                  >
+                    <IconRefresh className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </>
+        )}
         {isLoading && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 transform">
             <button

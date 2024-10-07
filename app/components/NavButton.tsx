@@ -66,6 +66,7 @@ export function NavButton({
               placeholder="System Prompt"
               value={newSystemPrompt}
               onChange={(e) => setNewSystemPrompt(e.target.value)}
+              className="h-[500px]"
             />
             <RadioGroup
               value={newSessionType}
