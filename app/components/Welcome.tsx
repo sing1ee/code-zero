@@ -10,32 +10,54 @@ import {
 } from './ui/select'
 import { SessionType } from '../types/ChatSession'
 import { useChatSession } from '../contexts/ChatSessionContext'
+import { useEffect, useState } from 'react'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
+import { sessionTypeOptions } from '../types/ChatSession'
 
-interface WelcomeProps {
-  onCreateSession: () => void
-  newSessionName: string
-  setNewSessionName: (name: string) => void
-  newSystemPrompt: string
-  setNewSystemPrompt: (prompt: string) => void
-  newSessionType: SessionType
-  setNewSessionType: (type: SessionType) => void
-  sessionTypeOptions: { value: SessionType; label: string }[]
+interface SystemCommand {
+  id: string
+  name: string
+  type: SessionType
 }
 
-export function Welcome({
-  onCreateSession,
-  newSessionName,
-  setNewSessionName,
-  newSystemPrompt,
-  setNewSystemPrompt,
-  newSessionType,
-  setNewSessionType,
-  sessionTypeOptions,
-}: WelcomeProps) {
-  const { sessions, switchSession } = useChatSession()
+export function Welcome() {
+  const { sessions, switchSession, createSession } = useChatSession()
+  const [systemCommands, setSystemCommands] = useState<SystemCommand[]>([])
+  const [newSessionName, setNewSessionName] = useState('')
+  const [newSystemPrompt, setNewSystemPrompt] = useState('')
+  const [newSystemCommandId, setNewSystemCommandId] = useState('')
+  const [newSessionType, setNewSessionType] =
+    useState<SessionType>('text_assistant')
+
+  useEffect(() => {
+    async function fetchSystemCommands() {
+      try {
+        const response = await fetch('/api/system-commands')
+        if (!response.ok) throw new Error('Failed to fetch system commands')
+        const data = await response.json()
+        setSystemCommands(data)
+      } catch (error) {
+        console.error('Error fetching system commands:', error)
+      }
+    }
+
+    fetchSystemCommands()
+  }, [])
+
+  const handleQuickChat = async (command: SystemCommand) => {
+    setNewSystemCommandId(command.id)
+    setNewSessionName(command.name)
+    setNewSessionType(command.type)
+    createSession(
+      newSessionName,
+      newSystemPrompt,
+      newSessionType,
+      newSystemCommandId
+    )
+  }
 
   return (
-    <div className="flex h-full w-full items-center justify-center p-4">
+    <div className="flex h-full w-full flex-col items-center justify-center p-4">
       <div className="w-full max-w-4xl rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
         <h1 className="mb-8 text-center text-3xl font-bold">
           Welcome to Chat App
@@ -69,7 +91,17 @@ export function Welcome({
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={onCreateSession} className="w-full">
+            <Button
+              onClick={() =>
+                createSession(
+                  newSessionName,
+                  newSystemPrompt,
+                  newSessionType,
+                  newSystemCommandId
+                )
+              }
+              className="w-full"
+            >
               Create New Session
             </Button>
           </div>
@@ -92,6 +124,25 @@ export function Welcome({
               </ul>
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="mt-8 w-full max-w-4xl">
+        <h2 className="mb-4 text-xl font-semibold">Quick Access</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {systemCommands.map((command) => (
+            <Card key={command.id}>
+              <CardHeader>
+                <CardTitle>{command.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-500">{command.type}</p>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button onClick={() => handleQuickChat(command)}>Chat</Button>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       </div>
     </div>

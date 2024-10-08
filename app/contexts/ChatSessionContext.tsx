@@ -15,7 +15,8 @@ interface ChatSessionContextType {
   createSession: (
     name: string,
     systemPrompt: string,
-    type: SessionType
+    type: SessionType,
+    systemCommandId: string
   ) => Promise<void>
   switchSession: (id: string) => void
   updateSessionName: (id: string, name: string) => Promise<void>
@@ -47,11 +48,16 @@ export function ChatSessionProvider({
   }
 
   const createSession = useCallback(
-    async (name: string, systemPrompt: string, type: SessionType) => {
+    async (
+      name: string,
+      systemPrompt: string,
+      type: SessionType,
+      systemCommandId: string
+    ) => {
       const response = await fetch('/api/chat-sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, systemPrompt, type }),
+        body: JSON.stringify({ name, systemPrompt, type, systemCommandId }),
       })
       if (response.ok) {
         const newSession = await response.json()

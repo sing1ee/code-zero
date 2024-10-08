@@ -54,6 +54,7 @@ function HomeContent() {
 
   const [newSessionName, setNewSessionName] = useState('')
   const [newSystemPrompt, setNewSystemPrompt] = useState('')
+  const [newSystemCommandId, setNewSystemCommandId] = useState('')
   const [newSessionType, setNewSessionType] =
     useState<SessionType>('text_assistant')
 
@@ -67,11 +68,17 @@ function HomeContent() {
   }
 
   const handleCreateSession = () => {
-    if (newSessionName && newSystemPrompt) {
-      createSession(newSessionName, newSystemPrompt, newSessionType)
+    if (newSessionName && (newSystemPrompt || newSystemCommandId)) {
+      createSession(
+        newSessionName,
+        newSystemPrompt,
+        newSessionType,
+        newSystemCommandId
+      )
       setNewSessionName('')
       setNewSystemPrompt('')
       setNewSessionType('text_assistant')
+      setNewSystemCommandId('')
       setIsMobileMenuOpen(false)
     }
   }
@@ -167,16 +174,7 @@ function HomeContent() {
           sessionType={currentSession.type}
         />
       ) : (
-        <Welcome
-          onCreateSession={handleCreateSession}
-          newSessionName={newSessionName}
-          setNewSessionName={setNewSessionName}
-          newSystemPrompt={newSystemPrompt}
-          setNewSystemPrompt={setNewSystemPrompt}
-          newSessionType={newSessionType}
-          setNewSessionType={setNewSessionType}
-          sessionTypeOptions={sessionTypeOptions}
-        />
+        <Welcome />
       )}
     </div>
   )

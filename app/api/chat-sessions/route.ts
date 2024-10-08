@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { db } from '../../lib/db'
-import { chatSessions, chatMessages } from '../../lib/db/schema'
+import { chatMessages, chatSessions, systemCommand } from '../../lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { SessionType } from '../../types/ChatSession'
+import { SessionType, ChatSession } from '../../types/ChatSession'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../auth/[...nextauth]/route'
 
@@ -16,24 +16,48 @@ export async function POST(request: Request) {
 
   const userId = session.user.id
 
-  const { name, systemPrompt, type } = await request.json()
+  const { name, systemPrompt, type, systemCommandId } = await request.json()
 
   try {
+    let sessionData: { name: string; systemPrompt: string; type: SessionType }
+
+    if (systemCommandId) {
+      const [systemCommandObj] = await db
+        .select()
+        .from(systemCommand)
+        .where(eq(systemCommand.id, systemCommandId))
+        .limit(1)
+
+      if (!systemCommandObj) {
+        return NextResponse.json(
+          { error: 'System command not found' },
+          { status: 404 }
+        )
+      }
+
+      sessionData = {
+        name: systemCommandObj.name,
+        systemPrompt: systemCommandObj.systemPrompt,
+        type: systemCommandObj.type as SessionType,
+      }
+    } else {
+      sessionData = { name, systemPrompt, type: type as SessionType }
+    }
+
     const [newSession] = await db
       .insert(chatSessions)
       .values({
-        name,
-        systemPrompt,
-        type: type as SessionType,
-        createdBy: userId, // get user id from token
+        ...sessionData,
+        createdBy: parseInt(userId, 10),
       })
       .returning()
 
-    return NextResponse.json(newSession)
+    return NextResponse.json(removeSystemPrompt(newSession))
   } catch (error) {
+    console.error('Error creating session:', error)
     return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 400 }
+      { error: 'An error occurred while creating the session' },
+      { status: 500 }
     )
   }
 }
@@ -45,7 +69,7 @@ export async function GET() {
       .select()
       .from(chatSessions)
       .orderBy(chatSessions.createdAt)
-    return NextResponse.json(sessions)
+    return NextResponse.json(sessions.map(removeSystemPrompt))
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
@@ -69,7 +93,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }
 
-    return NextResponse.json(updatedSession)
+    return NextResponse.json(removeSystemPrompt(updatedSession))
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
@@ -101,4 +125,12 @@ export async function DELETE(request: Request) {
       { status: 400 }
     )
   }
+}
+
+function removeSystemPrompt(
+  session: ChatSession
+): Omit<ChatSession, 'systemPrompt'> {
+  return Object.fromEntries(
+    Object.entries(session).filter(([key]) => key !== 'systemPrompt')
+  ) as Omit<ChatSession, 'systemPrompt'>
 }

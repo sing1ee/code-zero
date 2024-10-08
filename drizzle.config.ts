@@ -7,4 +7,6 @@ export default {
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },
+  // 添加 verbose 选项
+  verbose: true,
 } satisfies Config
