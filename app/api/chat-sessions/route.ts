@@ -3,9 +3,19 @@ import { db } from '../../lib/db'
 import { chatSessions, chatMessages } from '../../lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { SessionType } from '../../types/ChatSession'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '../auth/[...nextauth]/route'
 
 // Create new session
 export async function POST(request: Request) {
+  const session = await getServerSession(authOptions)
+
+  if (!session || !session.user) {
+    return new Response('Unauthorized', { status: 401 })
+  }
+
+  const userId = session.user.id
+
   const { name, systemPrompt, type } = await request.json()
 
   try {
@@ -15,6 +25,7 @@ export async function POST(request: Request) {
         name,
         systemPrompt,
         type: type as SessionType,
+        createdBy: userId, // get user id from token
       })
       .returning()
 

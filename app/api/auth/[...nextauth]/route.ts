@@ -5,6 +5,7 @@ import { users } from '@/app/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import { DefaultSession } from 'next-auth'
+import { AuthOptions } from 'next-auth'
 
 declare module 'next-auth' {
   interface Session extends DefaultSession {
@@ -13,8 +14,7 @@ declare module 'next-auth' {
     } & DefaultSession['user']
   }
 }
-
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -73,6 +73,7 @@ const handler = NextAuth({
       return session
     },
   },
-})
+}
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }

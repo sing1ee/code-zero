@@ -7,6 +7,8 @@ import {
   timestamp,
   jsonb,
   pgEnum,
+  integer,
+  index,
 } from 'drizzle-orm/pg-core'
 
 // Add this enum definition
@@ -26,11 +28,30 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
-export const chatSessions = pgTable('chat_sessions', {
+export const chatSessions = pgTable(
+  'chat_sessions',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    name: text('name').notNull(),
+    systemPrompt: text('system_prompt').notNull(),
+    type: sessionTypeEnum('type').notNull().default('text_assistant'),
+    createdBy: integer('created_by')
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => {
+    return {
+      createdByIdx: index('created_by_idx').on(table.createdBy),
+    }
+  }
+)
+
+export const systemCommand = pgTable('system_cmds', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
   systemPrompt: text('system_prompt').notNull(),
-  // Add the new type field
   type: sessionTypeEnum('type').notNull().default('text_assistant'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
