@@ -4,14 +4,12 @@ import { useChat, Message } from 'ai/react'
 import { Button } from './ui/button'
 import { Textarea } from './ui/textarea'
 import { ScrollArea } from './ui/scroll-area'
-import IconStop from './icon/IconStop'
-import IconRefresh from './icon/IconRefresh'
+import { StopCircle, RefreshCw, Send } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { cn } from '../lib/utils'
 import { useCallback } from 'react'
 import './markdown.css'
-import IconSend from './icon/IconSend'
 import { CollapsibleUserMessage } from './CollapsibleUserMessage'
 import { Skeleton } from './ui/skeleton'
 import { CollapsibleSidebar } from './CollapsibleSidebar'
@@ -157,7 +155,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                       size="icon"
                       className="ml-2 self-start p-0 hover:bg-gray-200"
                     >
-                      <IconRefresh className="h-4 w-4" />
+                      <RefreshCw className="h-4 w-4" />
                     </Button>
                   )}
                 </div>
@@ -172,7 +170,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                 className="rounded-full p-2 transition-colors hover:bg-gray-200"
                 aria-label="Stop generation"
               >
-                <IconStop />
+                <StopCircle className="h-4 w-4" />
               </button>
             </div>
           )}
@@ -194,7 +192,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
               className="absolute bottom-2 right-2 p-2"
               aria-label="Send message"
             >
-              <IconSend />
+              <Send className="h-4 w-4" />
             </Button>
           </div>
         </form>
