@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import favicon from './favicon.svg'
-import { Toaster } from './components/ui/toaster'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -21,6 +20,8 @@ export const metadata: Metadata = {
   icons: [{ rel: 'icon', url: favicon.src }],
 }
 
+import ClientLayout from './client-layout'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,8 +32,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <Toaster />
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   )

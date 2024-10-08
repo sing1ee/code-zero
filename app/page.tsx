@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Menu, Plus } from 'lucide-react'
+import { signOut, useSession } from 'next-auth/react'
 
 import { Button } from './components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './components/ui/sheet'
@@ -14,7 +15,6 @@ import { NavButton } from './components/NavButton'
 import { SettingsPopover } from './components/SettingsPopover'
 import { Welcome } from './components/Welcome'
 
-import AuthLayout from './layouts/AuthLayout'
 import {
   ChatSessionProvider,
   useChatSession,
@@ -24,19 +24,32 @@ import { SessionType } from './types/ChatSession'
 import favicon from './favicon.svg'
 
 export default function Home() {
+  const { status } = useSession()
+  const router = useRouter()
+
+  if (status === 'loading') {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-xl font-semibold">Loading...</div>
+      </div>
+    )
+  }
+
+  if (status === 'unauthenticated') {
+    router.push('/auth/login')
+    return null
+  }
+
   return (
-    <AuthLayout>
-      <ChatSessionProvider>
-        <HomeContent />
-      </ChatSessionProvider>
-    </AuthLayout>
+    <ChatSessionProvider>
+      <HomeContent />
+    </ChatSessionProvider>
   )
 }
 
 function HomeContent() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const router = useRouter()
   const { currentSession, createSession } = useChatSession()
 
   const [newSessionName, setNewSessionName] = useState('')
@@ -50,8 +63,7 @@ function HomeContent() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    router.push('/auth/login')
+    signOut({ callbackUrl: '/auth/login' })
   }
 
   const handleCreateSession = () => {

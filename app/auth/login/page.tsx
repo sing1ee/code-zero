@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/app/components/ui/button'
@@ -21,18 +22,15 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
       })
-      if (response.ok) {
-        const data = await response.json()
-        localStorage.setItem('token', data.token)
-        router.push('/') // Redirect to home page
+      if (result?.error) {
+        alert(result.error)
       } else {
-        const data = await response.json()
-        alert(data.error)
+        router.push('/')
       }
     } catch (error) {
       console.error('Login error:', error)
