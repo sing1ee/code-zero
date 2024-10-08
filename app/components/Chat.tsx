@@ -25,12 +25,19 @@ interface ChatProps {
 }
 
 export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
-  console.log('Chat sessionId', sessionId)
   const [initialMessages, setInitialMessages] = useState<Message[]>([])
-  const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [isInitialLoading, setIsInitialLoading] = useState(false)
 
   useEffect(() => {
+    setInitialMessages([]) // Reset messages when sessionId changes
+    setIsInitialLoading(true)
+
     const fetchInitialMessages = async () => {
+      if (!sessionId) {
+        setIsInitialLoading(false)
+        return
+      }
+
       try {
         const response = await fetch(`/api/messages/${sessionId}`, {
           method: 'GET',
@@ -59,6 +66,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
     stop,
   } = useChat({
     initialMessages,
+    id: sessionId, // Add this line to ensure chat state resets when sessionId changes
     keepLastMessageOnError: true,
   })
 
