@@ -15,14 +15,7 @@ import IconSend from './icon/IconSend'
 import { CollapsibleUserMessage } from './CollapsibleUserMessage'
 import { Skeleton } from './ui/skeleton'
 import { CollapsibleSidebar } from './CollapsibleSidebar'
-import { SessionType } from '../types/ChatSession'
-
-const EXPANDABLE_SESSION_TYPES: SessionType[] = [
-  'text_assistant',
-  'mermaid_assistant',
-  'svg_card_assistant',
-  'development_assistant',
-]
+import { SessionType, EXPANDABLE_SESSION_TYPES } from '../types/ChatSession'
 
 interface ChatProps {
   sessionId?: string
@@ -109,7 +102,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
 
   return (
     <CollapsibleSidebar
-      sessionType={sessionType}
+      sessionType={sessionType as SessionType}
       lastAssistantMessage={lastAssistantMessage}
     >
       <div className={`flex h-full flex-col ${isExpanded ? '' : 'w-1/2'}`}>

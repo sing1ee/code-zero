@@ -9,7 +9,7 @@ import {
 import { ChevronRight, ChevronLeft } from 'lucide-react'
 import { Button } from './ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
-import { SessionType } from '../types/ChatSession'
+import { SessionType, EXPANDABLE_SESSION_TYPES } from '../types/ChatSession'
 import { Message } from 'ai'
 import dynamic from 'next/dynamic'
 
@@ -20,13 +20,6 @@ interface CollapsibleSidebarProps {
   children: React.ReactNode
   lastAssistantMessage?: Message
 }
-
-const EXPANDABLE_SESSION_TYPES: SessionType[] = [
-  'text_assistant',
-  'mermaid_assistant',
-  'svg_card_assistant',
-  'development_assistant',
-]
 
 function CollapsibleSidebar({
   sessionType,
