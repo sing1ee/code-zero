@@ -1,19 +1,22 @@
 'use client'
-import { useEffect, useState } from 'react'
-import { useChat, Message } from 'ai/react'
-import { Button } from './ui/button'
-import { Textarea } from './ui/textarea'
-import { ScrollArea } from './ui/scroll-area'
-import { StopCircle, RefreshCw, Send } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { Message, useChat } from 'ai/react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import clipboardCopy from 'clipboard-copy'
+import { RefreshCw, Send, StopCircle, Copy } from 'lucide-react'
+
 import { cn } from '../lib/utils'
-import { useCallback } from 'react'
-import './markdown.css'
-import { CollapsibleUserMessage } from './CollapsibleUserMessage'
-import { Skeleton } from './ui/skeleton'
+import { EXPANDABLE_SESSION_TYPES, SessionType } from '../types/ChatSession'
 import { CollapsibleSidebar } from './CollapsibleSidebar'
-import { SessionType, EXPANDABLE_SESSION_TYPES } from '../types/ChatSession'
+import { CollapsibleUserMessage } from './CollapsibleUserMessage'
+import { Button } from './ui/button'
+import { ScrollArea } from './ui/scroll-area'
+import { Skeleton } from './ui/skeleton'
+import { Textarea } from './ui/textarea'
+import { useToast } from '../hooks/use-toast'
+
+import './markdown.css'
 
 interface ChatProps {
   sessionId?: string
@@ -23,6 +26,7 @@ interface ChatProps {
 }
 
 export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
+  const { toast } = useToast()
   const [initialMessages, setInitialMessages] = useState<Message[]>([])
   const [isInitialLoading, setIsInitialLoading] = useState(false)
 
@@ -98,6 +102,21 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
     ? EXPANDABLE_SESSION_TYPES.includes(sessionType)
     : false
 
+  function handleCopy(content: string) {
+    clipboardCopy(content)
+      .then(() => {
+        // Optionally, you can show a toast notification here
+        console.log('Content copied to clipboard')
+        toast({
+          title: 'OK!',
+          description: 'Content copied to clipboard',
+        })
+      })
+      .catch((err) => {
+        console.error('Failed to copy content: ', err)
+      })
+  }
+
   return (
     <CollapsibleSidebar
       sessionType={sessionType as SessionType}
@@ -145,19 +164,31 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                       <CollapsibleUserMessage content={message.content} />
                     )}
                   </div>
-                  {message.role === 'assistant' && (
+                  <div className="ml-2 flex flex-col">
                     <Button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        reload()
-                      }}
+                      onClick={() => handleCopy(message.content)}
                       variant="ghost"
                       size="icon"
-                      className="ml-2 self-start p-0 hover:bg-gray-200"
+                      className="mb-2 p-0 hover:bg-gray-200"
+                      aria-label="Copy message"
                     >
-                      <RefreshCw className="h-4 w-4" />
+                      <Copy className="h-4 w-4" />
                     </Button>
-                  )}
+                    {message.role === 'assistant' && (
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault()
+                          reload()
+                        }}
+                        variant="ghost"
+                        size="icon"
+                        className="p-0 hover:bg-gray-200"
+                        aria-label="Regenerate response"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ))}
             </>

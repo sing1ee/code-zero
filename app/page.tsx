@@ -1,24 +1,27 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { Menu, Plus } from 'lucide-react'
+
 import { Button } from './components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from './components/ui/sheet'
 import { Chat } from './components/Chat'
-import { Menu, Plus } from 'lucide-react'
-import Image from 'next/image'
-import favicon from './favicon.svg'
+import { FeedbackPopover } from './components/FeedbackPopover'
+import { HistoryPopover } from './components/HistoryPopover'
+import { NavButton } from './components/NavButton'
+import { SettingsPopover } from './components/SettingsPopover'
+import { Welcome } from './components/Welcome'
+
 import AuthLayout from './layouts/AuthLayout'
-import { useRouter } from 'next/navigation'
 import {
   ChatSessionProvider,
   useChatSession,
 } from './contexts/ChatSessionContext'
-import { SettingsPopover } from './components/SettingsPopover'
-import { FeedbackPopover } from './components/FeedbackPopover'
-import { HistoryPopover } from './components/HistoryPopover'
-import { NavButton } from './components/NavButton'
 import { SessionType } from './types/ChatSession'
-import { Welcome } from './components/Welcome'
+
+import favicon from './favicon.svg'
 
 export default function Home() {
   return (
