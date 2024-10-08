@@ -25,7 +25,6 @@ export function Welcome() {
   const [systemCommands, setSystemCommands] = useState<SystemCommand[]>([])
   const [newSessionName, setNewSessionName] = useState('')
   const [newSystemPrompt, setNewSystemPrompt] = useState('')
-  const [newSystemCommandId, setNewSystemCommandId] = useState('')
   const [newSessionType, setNewSessionType] =
     useState<SessionType>('text_assistant')
 
@@ -45,15 +44,7 @@ export function Welcome() {
   }, [])
 
   const handleQuickChat = async (command: SystemCommand) => {
-    setNewSystemCommandId(command.id)
-    setNewSessionName(command.name)
-    setNewSessionType(command.type)
-    createSession(
-      newSessionName,
-      newSystemPrompt,
-      newSessionType,
-      newSystemCommandId
-    )
+    createSession(command.name, '', command.type, command.id)
   }
 
   return (
@@ -97,7 +88,7 @@ export function Welcome() {
                   newSessionName,
                   newSystemPrompt,
                   newSessionType,
-                  newSystemCommandId
+                  ''
                 )
               }
               className="w-full"
