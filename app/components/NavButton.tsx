@@ -8,6 +8,7 @@ import { Label } from './ui/label'
 import { SessionType, sessionTypeOptions } from '../types/ChatSession'
 import { useChatSession } from '../contexts/ChatSessionContext'
 import { Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface NavButtonProps {
   isMobile: boolean
@@ -15,6 +16,7 @@ interface NavButtonProps {
 }
 
 export function NavButton({ isMobile, onClose }: NavButtonProps) {
+  const router = useRouter()
   const { createSession } = useChatSession()
   const [newSessionName, setNewSessionName] = useState('')
   const [newSystemPrompt, setNewSystemPrompt] = useState('')
@@ -67,14 +69,15 @@ export function NavButton({ isMobile, onClose }: NavButtonProps) {
               ))}
             </RadioGroup>
             <Button
-              onClick={() =>
-                createSession(
+              onClick={async () => {
+                const session = await createSession(
                   newSessionName,
                   newSystemPrompt,
                   newSessionType,
                   ''
                 )
-              }
+                router.push(`/chat/${session?.id}`)
+              }}
             >
               Create Session
             </Button>

@@ -17,8 +17,7 @@ interface ChatSessionContextType {
     systemPrompt: string,
     type: SessionType,
     systemCommandId: string
-  ) => Promise<void>
-  switchSession: (id: string) => void
+  ) => Promise<ChatSession | null>
   updateSessionName: (id: string, name: string) => Promise<void>
   deleteSession: (id: string) => Promise<void>
 }
@@ -53,7 +52,7 @@ export function ChatSessionProvider({
       systemPrompt: string,
       type: SessionType,
       systemCommandId: string
-    ) => {
+    ): Promise<ChatSession | null> => {
       const response = await fetch('/api/chat-sessions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -63,19 +62,11 @@ export function ChatSessionProvider({
         const newSession = await response.json()
         setSessions((prev) => [...prev, newSession])
         setCurrentSession(newSession)
+        return newSession
       }
+      return null
     },
     []
-  )
-
-  const switchSession = useCallback(
-    (id: string) => {
-      const session = sessions.find((s) => s.id === id)
-      if (session) {
-        setCurrentSession(session)
-      }
-    },
-    [sessions]
   )
 
   const updateSessionName = useCallback(
@@ -121,7 +112,6 @@ export function ChatSessionProvider({
         sessions,
         currentSession,
         createSession,
-        switchSession,
         updateSessionName,
         deleteSession,
       }}

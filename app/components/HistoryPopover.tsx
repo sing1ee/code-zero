@@ -5,6 +5,7 @@ import { History, Trash2 } from 'lucide-react'
 import { useChatSession } from '../contexts/ChatSessionContext'
 import { Input } from './ui/input'
 import { ScrollArea } from './ui/scroll-area'
+import { useRouter } from 'next/navigation'
 
 interface HistoryPopoverProps extends PopoverProps {
   isMobile: boolean
@@ -12,8 +13,8 @@ interface HistoryPopoverProps extends PopoverProps {
 }
 
 export function HistoryPopover({ isMobile, onClose }: HistoryPopoverProps) {
-  const { sessions, switchSession, updateSessionName, deleteSession } =
-    useChatSession()
+  const router = useRouter()
+  const { sessions, updateSessionName, deleteSession } = useChatSession()
 
   return (
     <Popover>
@@ -45,7 +46,7 @@ export function HistoryPopover({ isMobile, onClose }: HistoryPopoverProps) {
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    switchSession(session.id)
+                    router.push(`/chat/${session.id}`)
                     if (isMobile) onClose()
                   }}
                 >
@@ -54,7 +55,11 @@ export function HistoryPopover({ isMobile, onClose }: HistoryPopoverProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => deleteSession(session.id)}
+                  onClick={() => {
+                    deleteSession(session.id)
+                    router.push(`/welcome`)
+                    if (isMobile) onClose()
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

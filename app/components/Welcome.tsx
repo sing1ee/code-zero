@@ -13,6 +13,7 @@ import { useChatSession } from '../contexts/ChatSessionContext'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { sessionTypeOptions } from '../types/ChatSession'
+import { useRouter } from 'next/navigation'
 
 interface SystemCommand {
   id: string
@@ -21,7 +22,8 @@ interface SystemCommand {
 }
 
 export function Welcome() {
-  const { sessions, switchSession, createSession } = useChatSession()
+  const router = useRouter()
+  const { sessions, createSession } = useChatSession()
   const [systemCommands, setSystemCommands] = useState<SystemCommand[]>([])
   const [newSessionName, setNewSessionName] = useState('')
   const [newSystemPrompt, setNewSystemPrompt] = useState('')
@@ -44,7 +46,23 @@ export function Welcome() {
   }, [])
 
   const handleQuickChat = async (command: SystemCommand) => {
-    createSession(command.name, '', command.type, command.id)
+    const session = await createSession(
+      command.name,
+      '',
+      command.type,
+      command.id
+    )
+    router.push(`/chat/${session?.id}`)
+  }
+
+  const handleCreateSession = async () => {
+    const session = await createSession(
+      newSessionName,
+      newSystemPrompt,
+      newSessionType,
+      ''
+    )
+    router.push(`/chat/${session?.id}`)
   }
 
   return (
@@ -82,17 +100,7 @@ export function Welcome() {
                 ))}
               </SelectContent>
             </Select>
-            <Button
-              onClick={() =>
-                createSession(
-                  newSessionName,
-                  newSystemPrompt,
-                  newSessionType,
-                  ''
-                )
-              }
-              className="w-full"
-            >
+            <Button onClick={handleCreateSession} className="w-full">
               Create New Session
             </Button>
           </div>
@@ -106,7 +114,7 @@ export function Welcome() {
                     <Button
                       variant="outline"
                       className="w-full text-left"
-                      onClick={() => switchSession(session.id)}
+                      onClick={() => router.push(`/chat/${session.id}`)}
                     >
                       {session.name}
                     </Button>
