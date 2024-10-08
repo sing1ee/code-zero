@@ -1,38 +1,25 @@
+import { useState } from 'react'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Textarea } from './ui/textarea'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { RadioGroup, RadioGroupItem } from './ui/radio-group'
 import { Label } from './ui/label'
-import { SessionType } from '../types/ChatSession'
+import { SessionType, sessionTypeOptions } from '../types/ChatSession'
+import { useChatSession } from '../contexts/ChatSessionContext'
+import { Plus } from 'lucide-react'
 
 interface NavButtonProps {
-  icon: React.ReactNode
-  onClick: () => void
-  newSessionName: string
-  setNewSessionName: (name: string) => void
-  newSystemPrompt: string
-  setNewSystemPrompt: (prompt: string) => void
-  newSessionType: SessionType
-  setNewSessionType: (type: SessionType) => void
-  sessionTypeOptions: { value: SessionType; label: string }[]
   isMobile: boolean
   onClose: () => void
 }
 
-export function NavButton({
-  icon,
-  onClick,
-  newSessionName,
-  setNewSessionName,
-  newSystemPrompt,
-  setNewSystemPrompt,
-  newSessionType,
-  setNewSessionType,
-  sessionTypeOptions,
-  isMobile,
-  onClose,
-}: NavButtonProps) {
+export function NavButton({ isMobile, onClose }: NavButtonProps) {
+  const { createSession } = useChatSession()
+  const [newSessionName, setNewSessionName] = useState('')
+  const [newSystemPrompt, setNewSystemPrompt] = useState('')
+  const [newSessionType, setNewSessionType] =
+    useState<SessionType>('text_assistant')
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -42,7 +29,7 @@ export function NavButton({
           className="flex w-full flex-col items-center"
           onClick={isMobile ? onClose : undefined}
         >
-          {icon}
+          {<Plus />}
           <span className="sr-only">New Session</span>
         </Button>
       </PopoverTrigger>
@@ -79,7 +66,18 @@ export function NavButton({
                 </div>
               ))}
             </RadioGroup>
-            <Button onClick={onClick}>Create Session</Button>
+            <Button
+              onClick={() =>
+                createSession(
+                  newSessionName,
+                  newSystemPrompt,
+                  newSessionType,
+                  ''
+                )
+              }
+            >
+              Create Session
+            </Button>
           </div>
         </div>
       </PopoverContent>

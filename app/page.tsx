@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Menu, Plus } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 
 import { Button } from './components/ui/button'
@@ -19,7 +19,6 @@ import {
   ChatSessionProvider,
   useChatSession,
 } from './contexts/ChatSessionContext'
-import { SessionType } from './types/ChatSession'
 
 import favicon from './favicon.svg'
 
@@ -50,13 +49,7 @@ export default function Home() {
 function HomeContent() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { currentSession, createSession } = useChatSession()
-
-  const [newSessionName, setNewSessionName] = useState('')
-  const [newSystemPrompt, setNewSystemPrompt] = useState('')
-  const [newSystemCommandId, setNewSystemCommandId] = useState('')
-  const [newSessionType, setNewSessionType] =
-    useState<SessionType>('text_assistant')
+  const { currentSession } = useChatSession()
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
@@ -67,48 +60,12 @@ function HomeContent() {
     signOut({ callbackUrl: '/auth/login' })
   }
 
-  const handleCreateSession = () => {
-    if (newSessionName && (newSystemPrompt || newSystemCommandId)) {
-      createSession(
-        newSessionName,
-        newSystemPrompt,
-        newSessionType,
-        newSystemCommandId
-      )
-      setNewSessionName('')
-      setNewSystemPrompt('')
-      setNewSessionType('text_assistant')
-      setNewSystemCommandId('')
-      setIsMobileMenuOpen(false)
-    }
-  }
-
-  const sessionTypeOptions: { value: SessionType; label: string }[] = [
-    { value: 'text_assistant', label: 'Text Assistant' },
-    { value: 'mermaid_assistant', label: 'Mermaid Assistant' },
-    { value: 'svg_card_assistant', label: 'SVG Card Assistant' },
-    { value: 'development_assistant', label: 'Development Assistant' },
-    { value: 'chatbot', label: 'Chatbot' },
-  ]
-
   return (
     <div className={`flex h-screen ${isDarkMode ? 'dark' : ''}`}>
       {/* 侧边栏 - PC 版本 */}
       <aside className="hidden w-16 flex-col items-center bg-gray-100 p-4 dark:bg-gray-800 lg:flex">
         <Logo />
-        <NavButton
-          icon={<Plus />}
-          onClick={handleCreateSession}
-          newSessionName={newSessionName}
-          setNewSessionName={setNewSessionName}
-          newSystemPrompt={newSystemPrompt}
-          setNewSystemPrompt={setNewSystemPrompt}
-          newSessionType={newSessionType}
-          setNewSessionType={setNewSessionType}
-          sessionTypeOptions={sessionTypeOptions}
-          isMobile={true}
-          onClose={() => setIsMobileMenuOpen(false)}
-        />
+        <NavButton isMobile={true} onClose={() => setIsMobileMenuOpen(false)} />
         <HistoryPopover isMobile={false} onClose={() => {}} />
         <FeedbackPopover isMobile={false} onClose={() => {}} />
         <SettingsPopover
@@ -135,15 +92,6 @@ function HomeContent() {
           <nav className="flex flex-col space-y-4">
             <Logo />
             <NavButton
-              icon={<Plus />}
-              onClick={handleCreateSession}
-              newSessionName={newSessionName}
-              setNewSessionName={setNewSessionName}
-              newSystemPrompt={newSystemPrompt}
-              setNewSystemPrompt={setNewSystemPrompt}
-              newSessionType={newSessionType}
-              setNewSessionType={setNewSessionType}
-              sessionTypeOptions={sessionTypeOptions}
               isMobile={true}
               onClose={() => setIsMobileMenuOpen(false)}
             />
