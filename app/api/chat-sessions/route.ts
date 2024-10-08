@@ -72,12 +72,13 @@ export async function DELETE(request: Request) {
   const { id } = await request.json()
 
   try {
+    // 删除会话时，删除所有相关的对话记录
+    await db.delete(chatMessages).where(eq(chatMessages.sessionId, id))
     const [deletedSession] = await db
       .delete(chatSessions)
       .where(eq(chatSessions.id, id))
       .returning()
-    // 删除会话时，删除所有相关的对话记录
-    await db.delete(chatMessages).where(eq(chatMessages.sessionId, id))
+
     if (!deletedSession) {
       return NextResponse.json({ error: 'Session not found' }, { status: 404 })
     }

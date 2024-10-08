@@ -30,7 +30,7 @@ export function HistoryPopover({ isMobile, onClose }: HistoryPopoverProps) {
       </PopoverTrigger>
       <PopoverContent className="w-80">
         <h3 className="mb-2 font-semibold">Thinking History</h3>
-        <ScrollArea className="h-[200px]">
+        <ScrollArea className="h-[70vh] md:h-[80vh]">
           <div className="space-y-2 pl-2 pt-2">
             {sessions.map((session) => (
               <div key={session.id} className="flex items-center space-x-2">

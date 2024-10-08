@@ -17,11 +17,18 @@ import { Skeleton } from './ui/skeleton'
 import { CollapsibleSidebar } from './CollapsibleSidebar'
 import { SessionType } from '../types/ChatSession'
 
+const EXPANDABLE_SESSION_TYPES: SessionType[] = [
+  'text_assistant',
+  'mermaid_assistant',
+  'svg_card_assistant',
+  'development_assistant',
+]
+
 interface ChatProps {
   sessionId?: string
   systemPrompt?: string
   sessionName?: string // Add this line
-  sessionType?: string
+  sessionType?: SessionType
 }
 
 export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
@@ -96,12 +103,16 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
     .filter((m) => m.role === 'assistant')
     .pop()
 
+  const isExpanded = sessionType
+    ? EXPANDABLE_SESSION_TYPES.includes(sessionType)
+    : false
+
   return (
     <CollapsibleSidebar
-      sessionType={sessionType as SessionType}
+      sessionType={sessionType}
       lastAssistantMessage={lastAssistantMessage}
     >
-      <div className="flex h-full flex-col">
+      <div className={`flex h-full flex-col ${isExpanded ? '' : 'w-1/2'}`}>
         <ScrollArea className="relative flex-grow p-4">
           {isInitialLoading ? (
             <div className="flex h-full items-center justify-center">
