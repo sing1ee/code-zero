@@ -178,7 +178,11 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                       <Button
                         onClick={(e) => {
                           e.preventDefault()
-                          reload()
+                          reload({
+                            body: {
+                              sessionId: sessionId,
+                            },
+                          })
                         }}
                         variant="ghost"
                         size="icon"
