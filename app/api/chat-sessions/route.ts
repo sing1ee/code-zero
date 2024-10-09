@@ -4,7 +4,7 @@ import { chatMessages, chatSessions, systemCommand } from '../../lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { SessionType, ChatSession } from '../../types/ChatSession'
 import { getServerSession } from 'next-auth/next'
-import { authOptions } from '../auth/[...nextauth]/route'
+import { authOptions } from '../../lib/auth'
 
 // Create new session
 export async function POST(request: Request) {
