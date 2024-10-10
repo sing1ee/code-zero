@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { sessionTypeOptions } from '../types/ChatSession'
 import { useRouter } from 'next/navigation'
+import { MessageSquare } from 'lucide-react'
 
 interface SystemCommand {
   id: string
@@ -71,7 +72,31 @@ export function Welcome() {
         <h1 className="mb-8 text-center text-3xl font-bold">
           Welcome to Chat App
         </h1>
-
+        <div className="mt-8 w-full max-w-4xl">
+          <h2 className="mb-4 text-xl font-semibold">Quick Access</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {systemCommands.map((command) => (
+              <Card key={command.id}>
+                <CardHeader>
+                  <CardTitle>{command.name}</CardTitle>
+                </CardHeader>
+                {/* <CardContent>
+                  <p className="text-sm text-gray-500">{command.type}</p>
+                </CardContent> */}
+                <CardFooter className="flex justify-end">
+                  <Button
+                    onClick={() => handleQuickChat(command)}
+                    size="icon"
+                    className="h-8 w-8"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    <span className="sr-only">Chat</span>
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </div>
         <div className="flex flex-col gap-8 md:flex-row">
           <div className="flex-1 space-y-4">
             <h2 className="mb-4 text-xl font-semibold">Create New Session</h2>
@@ -123,25 +148,6 @@ export function Welcome() {
               </ul>
             </div>
           )}
-        </div>
-      </div>
-
-      <div className="mt-8 w-full max-w-4xl">
-        <h2 className="mb-4 text-xl font-semibold">Quick Access</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {systemCommands.map((command) => (
-            <Card key={command.id}>
-              <CardHeader>
-                <CardTitle>{command.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-500">{command.type}</p>
-              </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button onClick={() => handleQuickChat(command)}>Chat</Button>
-              </CardFooter>
-            </Card>
-          ))}
         </div>
       </div>
     </div>
