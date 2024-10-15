@@ -78,9 +78,9 @@ Code Zero is a Next.js-based web application that provides an innovative platfor
   - `api/`: API routes for authentication, chat sessions, and other server-side operations
   - `auth/`: Authentication-related pages (login, register)
   - `components/`: Reusable React components
-  - `layouts/`: Layout components (e.g., AuthLayout)
-  - `lib/`: Utility functions, database configuration, and schemas
   - `contexts/`: React context providers (e.g., ChatSessionContext)
+  - `hooks/`: Custom React hooks
+  - `lib/`: Utility functions, database configuration, and schemas
   - `types/`: TypeScript type definitions
 - `public/`: Static assets
 - `drizzle/`: Database migration files
