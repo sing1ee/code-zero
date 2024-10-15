@@ -1,35 +1,33 @@
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import { Textarea } from './ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select'
 import { SessionType } from '../types/ChatSession'
 import { useChatSession } from '../contexts/ChatSessionContext'
 import { useEffect, useState } from 'react'
-import { Card, CardFooter, CardHeader, CardTitle } from './ui/card'
-import { sessionTypeOptions } from '../types/ChatSession'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from './ui/card'
 import { useRouter } from 'next/navigation'
-import { MessageSquare } from 'lucide-react'
+import { Badge } from './ui/badge'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip'
 
 interface SystemCommand {
   id: string
   name: string
   type: SessionType
+  description?: string
 }
 
 export function Welcome() {
   const router = useRouter()
-  const { sessions, createSession } = useChatSession()
+  const { createSession } = useChatSession()
   const [systemCommands, setSystemCommands] = useState<SystemCommand[]>([])
-  const [newSessionName, setNewSessionName] = useState('')
-  const [newSystemPrompt, setNewSystemPrompt] = useState('')
-  const [newSessionType, setNewSessionType] =
-    useState<SessionType>('text_assistant')
 
   useEffect(() => {
     async function fetchSystemCommands() {
@@ -56,99 +54,50 @@ export function Welcome() {
     router.push(`/chat/${session?.id}`)
   }
 
-  const handleCreateSession = async () => {
-    const session = await createSession(
-      newSessionName,
-      newSystemPrompt,
-      newSessionType,
-      ''
-    )
-    router.push(`/chat/${session?.id}`)
-  }
-
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center p-4">
-      <div className="w-full max-w-4xl rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
-        <h1 className="mb-8 text-center text-3xl font-bold">
+    <div className="flex min-h-screen w-full flex-col items-center justify-start bg-gray-50 p-4 dark:bg-gray-900 sm:p-6 md:p-8">
+      <div className="w-full max-w-7xl space-y-8">
+        <h1 className="text-center text-3xl font-bold text-gray-800 dark:text-gray-100 sm:text-4xl">
           Welcome to Chat App
         </h1>
-        <div className="mt-8 w-full max-w-4xl">
-          <h2 className="mb-4 text-xl font-semibold">Quick Access</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200">
+            Quick Access
+          </h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {systemCommands.map((command) => (
-              <Card key={command.id}>
+              <Card
+                key={command.id}
+                className="cursor-pointer bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:bg-gray-800"
+                onClick={() => handleQuickChat(command)}
+              >
                 <CardHeader>
-                  <CardTitle>{command.name}</CardTitle>
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-lg text-gray-800 dark:text-gray-200">
+                      {command.name}
+                    </CardTitle>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Badge variant="secondary">{command.type}</Badge>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Session Type</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                 </CardHeader>
-                {/* <CardContent>
-                  <p className="text-sm text-gray-500">{command.type}</p>
-                </CardContent> */}
-                <CardFooter className="flex justify-end">
-                  <Button
-                    onClick={() => handleQuickChat(command)}
-                    size="icon"
-                    className="h-8 w-8"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                    <span className="sr-only">Chat</span>
-                  </Button>
-                </CardFooter>
+                <CardContent>
+                  <CardDescription className="line-clamp-2 text-sm text-gray-600 dark:text-gray-300">
+                    {command.description || 'No description available.'}
+                  </CardDescription>
+                </CardContent>
               </Card>
             ))}
           </div>
-        </div>
-        <div className="flex flex-col gap-8 md:flex-row">
-          <div className="flex-1 space-y-4">
-            <h2 className="mb-4 text-xl font-semibold">Create New Session</h2>
-            <Input
-              placeholder="Session Name"
-              value={newSessionName}
-              onChange={(e) => setNewSessionName(e.target.value)}
-            />
-            <Textarea
-              placeholder="System Prompt"
-              value={newSystemPrompt}
-              onChange={(e) => setNewSystemPrompt(e.target.value)}
-            />
-            <Select
-              value={newSessionType}
-              onValueChange={(value: SessionType) => setNewSessionType(value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select session type" />
-              </SelectTrigger>
-              <SelectContent>
-                {sessionTypeOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleCreateSession} className="w-full">
-              Create New Session
-            </Button>
-          </div>
-
-          {sessions.length > 0 && (
-            <div className="flex-1">
-              <h2 className="mb-4 text-xl font-semibold">Recent Sessions</h2>
-              <ul className="space-y-2">
-                {sessions.map((session) => (
-                  <li key={session.id}>
-                    <Button
-                      variant="outline"
-                      className="w-full text-left"
-                      onClick={() => router.push(`/chat/${session.id}`)}
-                    >
-                      {session.name}
-                    </Button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+        </section>
       </div>
     </div>
   )
