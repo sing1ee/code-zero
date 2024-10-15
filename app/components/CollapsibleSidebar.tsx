@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { SessionType, EXPANDABLE_SESSION_TYPES } from '../types/ChatSession'
 import { Message } from 'ai'
 import dynamic from 'next/dynamic'
+import mermaid from 'mermaid'
 
 const MermaidWrapper = dynamic(() => import('./MermaidWrapper'), { ssr: false })
 
@@ -79,9 +80,33 @@ function CollapsibleSidebar({
       }
       img.src = 'data:image/svg+xml,' + encodeURIComponent(code)
     } else if (codeType === 'mermaid') {
-      // For Mermaid, we'll need to use mermaid.js API to render and download
-      // This is a placeholder and needs to be implemented
-      console.log('Downloading Mermaid diagram as PNG')
+      mermaid.render('mermaid-svg', code).then(({ svg }) => {
+        console.log(svg)
+        // 创建一个临时的 SVG 元素来获取尺寸
+        const tempSvg = document.createElement('div')
+        tempSvg.innerHTML = svg
+        const svgElement = tempSvg.firstChild
+
+        // 获取 SVG 的宽高
+        const svgWidth = svgElement.viewBox.baseVal.width
+        const svgHeight = svgElement.viewBox.baseVal.height
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        const img = new Image()
+        img.width = svgWidth
+        img.height = svgHeight
+        img.onload = () => {
+          canvas.width = img.width
+          canvas.height = img.height
+          ctx?.drawImage(img, 0, 0)
+          const pngFile = canvas.toDataURL('image/png')
+          const downloadLink = document.createElement('a')
+          downloadLink.download = 'mermaid-diagram.png'
+          downloadLink.href = pngFile
+          downloadLink.click()
+        }
+        img.src = 'data:image/svg+xml,' + encodeURIComponent(svg)
+      })
     }
   }, [codeType, code])
 
