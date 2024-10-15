@@ -85,7 +85,7 @@ function CollapsibleSidebar({
         // 创建一个临时的 SVG 元素来获取尺寸
         const tempSvg = document.createElement('div')
         tempSvg.innerHTML = svg
-        const svgElement = tempSvg.firstChild
+        const svgElement = tempSvg.firstChild as SVGSVGElement
 
         // 获取 SVG 的宽高
         const svgWidth = svgElement.viewBox.baseVal.width

@@ -11,7 +11,7 @@ import {
 import { SessionType } from '../types/ChatSession'
 import { useChatSession } from '../contexts/ChatSessionContext'
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card'
+import { Card, CardFooter, CardHeader, CardTitle } from './ui/card'
 import { sessionTypeOptions } from '../types/ChatSession'
 import { useRouter } from 'next/navigation'
 import { MessageSquare } from 'lucide-react'
