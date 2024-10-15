@@ -158,7 +158,10 @@ function CollapsibleSidebar({
     if (currentVersion.type === 'svg') {
       return <div dangerouslySetInnerHTML={{ __html: currentVersion.code }} />
     } else if (currentVersion.type === 'mermaid') {
-      return <MermaidWrapper chart={currentVersion.code} />
+      // 添加 key 属性，使用 selectedVersion 作为唯一标识符
+      return (
+        <MermaidWrapper key={selectedVersion} chart={currentVersion.code} />
+      )
     }
     return null
   }, [selectedVersion, diagramVersions])
@@ -179,14 +182,31 @@ function CollapsibleSidebar({
       {canExpand && (
         <>
           <CollapsibleContent className="flex-1 overflow-hidden bg-gray-50 p-4 dark:bg-gray-700">
-            <Tabs defaultValue="source" className="h-[calc(100%-2rem)]">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="source">Source</TabsTrigger>
-                <TabsTrigger value="preview">Preview</TabsTrigger>
-              </TabsList>
+            <Tabs defaultValue="source" className="h-full">
+              <div className="mb-2 flex items-center justify-between">
+                <TabsList className="grid w-[200px] grid-cols-2">
+                  <TabsTrigger value="source">Source</TabsTrigger>
+                  <TabsTrigger value="preview">Preview</TabsTrigger>
+                </TabsList>
+                <Select
+                  value={selectedVersion}
+                  onValueChange={setSelectedVersion}
+                >
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue placeholder="Version" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {diagramVersions.map((version) => (
+                      <SelectItem key={version.version} value={version.version}>
+                        {version.version}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <TabsContent
                 value="source"
-                className="h-[calc(100%-2rem)] overflow-auto"
+                className="h-[calc(100%-2.5rem)] overflow-auto"
               >
                 <div className="h-full rounded-lg bg-white p-4 shadow dark:bg-gray-600">
                   <pre className="h-full overflow-auto">
@@ -200,29 +220,9 @@ function CollapsibleSidebar({
               </TabsContent>
               <TabsContent
                 value="preview"
-                className="relative h-[calc(100%-2rem)] space-y-4 overflow-auto"
+                className="relative h-[calc(100%-2.5rem)] space-y-4 overflow-auto"
               >
                 <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-                  <div className="absolute left-2 top-2 z-10">
-                    <Select
-                      value={selectedVersion}
-                      onValueChange={setSelectedVersion}
-                    >
-                      <SelectTrigger className="w-[100px]">
-                        <SelectValue placeholder="Version" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {diagramVersions.map((version) => (
-                          <SelectItem
-                            key={version.version}
-                            value={version.version}
-                          >
-                            {version.version}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                   <div className="absolute right-2 top-2">
                     <Popover>
                       <PopoverTrigger asChild>
