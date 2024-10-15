@@ -94,9 +94,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
     [handleSubmit, isLoading, sessionId]
   )
 
-  const lastAssistantMessage = messages
-    .filter((m) => m.role === 'assistant')
-    .pop()
+  const assistantMessages = messages.filter((m) => m.role === 'assistant')
 
   const isExpanded = sessionType
     ? EXPANDABLE_SESSION_TYPES.includes(sessionType)
@@ -120,7 +118,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
   return (
     <CollapsibleSidebar
       sessionType={sessionType as SessionType}
-      lastAssistantMessage={lastAssistantMessage}
+      assistantMessages={assistantMessages}
     >
       <div className={`flex h-full flex-col ${isExpanded ? '' : 'w-1/2'}`}>
         <ScrollArea className="relative flex-grow p-4">

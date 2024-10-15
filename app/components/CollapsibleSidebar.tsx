@@ -16,6 +16,13 @@ import {
 import { Button } from './ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select'
 import { SessionType, EXPANDABLE_SESSION_TYPES } from '../types/ChatSession'
 import { Message } from 'ai'
 import dynamic from 'next/dynamic'
@@ -26,44 +33,59 @@ const MermaidWrapper = dynamic(() => import('./MermaidWrapper'), { ssr: false })
 interface CollapsibleSidebarProps {
   sessionType: SessionType
   children: React.ReactNode
-  lastAssistantMessage?: Message
+  assistantMessages: Message[]
+}
+
+interface DiagramVersion {
+  version: string
+  code: string
+  type: 'svg' | 'mermaid'
 }
 
 function CollapsibleSidebar({
   sessionType,
   children,
-  lastAssistantMessage,
+  assistantMessages,
 }: CollapsibleSidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const [code, setCode] = useState('')
-  const [codeType, setCodeType] = useState<'svg' | 'mermaid' | null>(null)
+  const [diagramVersions, setDiagramVersions] = useState<DiagramVersion[]>([])
+  const [selectedVersion, setSelectedVersion] = useState<string>('')
 
   useEffect(() => {
     setIsOpen(EXPANDABLE_SESSION_TYPES.includes(sessionType))
   }, [sessionType])
 
   useEffect(() => {
-    if (lastAssistantMessage) {
-      const svgMatch = lastAssistantMessage.content.match(/<svg[\s\S]*<\/svg>/)
-      const mermaidMatch = lastAssistantMessage.content.match(
-        /```mermaid\n([\s\S]*?)```/
-      )
+    const versions: DiagramVersion[] = []
+    assistantMessages.forEach((message, index) => {
+      const svgMatch = message.content.match(/<svg[\s\S]*<\/svg>/)
+      const mermaidMatch = message.content.match(/```mermaid\n([\s\S]*?)```/)
 
       if (svgMatch) {
-        setCode(svgMatch[0])
-        setCodeType('svg')
+        versions.push({
+          version: `V${index + 1}`,
+          code: svgMatch[0],
+          type: 'svg',
+        })
       } else if (mermaidMatch) {
-        setCode(mermaidMatch[1])
-        setCodeType('mermaid')
-      } else {
-        setCode('')
-        setCodeType(null)
+        versions.push({
+          version: `V${index + 1}`,
+          code: mermaidMatch[1],
+          type: 'mermaid',
+        })
       }
+    })
+
+    setDiagramVersions(versions.reverse())
+    if (versions.length > 0) {
+      setSelectedVersion(versions[0].version)
     }
-  }, [lastAssistantMessage])
+  }, [assistantMessages])
 
   const handleDownload = useCallback(() => {
-    if (codeType === 'svg') {
+    if (
+      diagramVersions.find((v) => v.version === selectedVersion)?.type === 'svg'
+    ) {
       // Convert SVG to PNG and download
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')
@@ -78,37 +100,49 @@ function CollapsibleSidebar({
         downloadLink.href = pngFile
         downloadLink.click()
       }
-      img.src = 'data:image/svg+xml,' + encodeURIComponent(code)
-    } else if (codeType === 'mermaid') {
-      mermaid.render('mermaid-svg', code).then(({ svg }) => {
-        console.log(svg)
-        // 创建一个临时的 SVG 元素来获取尺寸
-        const tempSvg = document.createElement('div')
-        tempSvg.innerHTML = svg
-        const svgElement = tempSvg.firstChild as SVGSVGElement
+      img.src =
+        'data:image/svg+xml,' +
+        encodeURIComponent(
+          diagramVersions.find((v) => v.version === selectedVersion)?.code || ''
+        )
+    } else if (
+      diagramVersions.find((v) => v.version === selectedVersion)?.type ===
+      'mermaid'
+    ) {
+      mermaid
+        .render(
+          'mermaid-svg',
+          diagramVersions.find((v) => v.version === selectedVersion)?.code || ''
+        )
+        .then(({ svg }) => {
+          console.log(svg)
+          // 创建一个临时的 SVG 元素来获取尺寸
+          const tempSvg = document.createElement('div')
+          tempSvg.innerHTML = svg
+          const svgElement = tempSvg.firstChild as SVGSVGElement
 
-        // 获取 SVG 的宽高
-        const svgWidth = svgElement.viewBox.baseVal.width
-        const svgHeight = svgElement.viewBox.baseVal.height
-        const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
-        const img = new Image()
-        img.width = svgWidth
-        img.height = svgHeight
-        img.onload = () => {
-          canvas.width = img.width
-          canvas.height = img.height
-          ctx?.drawImage(img, 0, 0)
-          const pngFile = canvas.toDataURL('image/png')
-          const downloadLink = document.createElement('a')
-          downloadLink.download = 'mermaid-diagram.png'
-          downloadLink.href = pngFile
-          downloadLink.click()
-        }
-        img.src = 'data:image/svg+xml,' + encodeURIComponent(svg)
-      })
+          // 获取 SVG 的宽高
+          const svgWidth = svgElement.viewBox.baseVal.width
+          const svgHeight = svgElement.viewBox.baseVal.height
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')
+          const img = new Image()
+          img.width = svgWidth
+          img.height = svgHeight
+          img.onload = () => {
+            canvas.width = img.width
+            canvas.height = img.height
+            ctx?.drawImage(img, 0, 0)
+            const pngFile = canvas.toDataURL('image/png')
+            const downloadLink = document.createElement('a')
+            downloadLink.download = 'mermaid-diagram.png'
+            downloadLink.href = pngFile
+            downloadLink.click()
+          }
+          img.src = 'data:image/svg+xml,' + encodeURIComponent(svg)
+        })
     }
-  }, [codeType, code])
+  }, [diagramVersions, selectedVersion])
 
   const handleShare = useCallback(() => {
     // Implement share functionality
@@ -116,13 +150,18 @@ function CollapsibleSidebar({
   }, [])
 
   const renderPreview = useCallback(() => {
-    if (codeType === 'svg') {
-      return <div dangerouslySetInnerHTML={{ __html: code }} />
-    } else if (codeType === 'mermaid') {
-      return <MermaidWrapper chart={code} />
+    const currentVersion = diagramVersions.find(
+      (v) => v.version === selectedVersion
+    )
+    if (!currentVersion) return null
+
+    if (currentVersion.type === 'svg') {
+      return <div dangerouslySetInnerHTML={{ __html: currentVersion.code }} />
+    } else if (currentVersion.type === 'mermaid') {
+      return <MermaidWrapper chart={currentVersion.code} />
     }
     return null
-  }, [code, codeType])
+  }, [selectedVersion, diagramVersions])
 
   const canExpand = EXPANDABLE_SESSION_TYPES.includes(sessionType)
 
@@ -151,7 +190,11 @@ function CollapsibleSidebar({
               >
                 <div className="h-full rounded-lg bg-white p-4 shadow dark:bg-gray-600">
                   <pre className="h-full overflow-auto">
-                    <code>{code}</code>
+                    <code>
+                      {diagramVersions.find(
+                        (v) => v.version === selectedVersion
+                      )?.code || ''}
+                    </code>
                   </pre>
                 </div>
               </TabsContent>
@@ -160,6 +203,26 @@ function CollapsibleSidebar({
                 className="relative h-[calc(100%-2rem)] space-y-4 overflow-auto"
               >
                 <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
+                  <div className="absolute left-2 top-2 z-10">
+                    <Select
+                      value={selectedVersion}
+                      onValueChange={setSelectedVersion}
+                    >
+                      <SelectTrigger className="w-[100px]">
+                        <SelectValue placeholder="Version" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {diagramVersions.map((version) => (
+                          <SelectItem
+                            key={version.version}
+                            value={version.version}
+                          >
+                            {version.version}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <div className="absolute right-2 top-2">
                     <Popover>
                       <PopoverTrigger asChild>
