@@ -6,9 +6,16 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from './ui/collapsible'
-import { ChevronRight, ChevronLeft } from 'lucide-react'
+import {
+  ChevronRight,
+  ChevronLeft,
+  MoreVertical,
+  Download,
+  Share2,
+} from 'lucide-react'
 import { Button } from './ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { SessionType, EXPANDABLE_SESSION_TYPES } from '../types/ChatSession'
 import { Message } from 'ai'
 import dynamic from 'next/dynamic'
@@ -54,6 +61,35 @@ function CollapsibleSidebar({
     }
   }, [lastAssistantMessage])
 
+  const handleDownload = useCallback(() => {
+    if (codeType === 'svg') {
+      // Convert SVG to PNG and download
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')
+      const img = new Image()
+      img.onload = () => {
+        canvas.width = img.width
+        canvas.height = img.height
+        ctx?.drawImage(img, 0, 0)
+        const pngFile = canvas.toDataURL('image/png')
+        const downloadLink = document.createElement('a')
+        downloadLink.download = 'diagram.png'
+        downloadLink.href = pngFile
+        downloadLink.click()
+      }
+      img.src = 'data:image/svg+xml,' + encodeURIComponent(code)
+    } else if (codeType === 'mermaid') {
+      // For Mermaid, we'll need to use mermaid.js API to render and download
+      // This is a placeholder and needs to be implemented
+      console.log('Downloading Mermaid diagram as PNG')
+    }
+  }, [codeType, code])
+
+  const handleShare = useCallback(() => {
+    // Implement share functionality
+    console.log('Sharing functionality to be implemented')
+  }, [])
+
   const renderPreview = useCallback(() => {
     if (codeType === 'svg') {
       return <div dangerouslySetInnerHTML={{ __html: code }} />
@@ -96,9 +132,38 @@ function CollapsibleSidebar({
               </TabsContent>
               <TabsContent
                 value="preview"
-                className="h-[calc(100%-2rem)] space-y-4 overflow-auto"
+                className="relative h-[calc(100%-2rem)] space-y-4 overflow-auto"
               >
                 <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
+                  <div className="absolute right-2 top-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-40">
+                        <div className="flex flex-col space-y-2">
+                          <Button
+                            variant="ghost"
+                            onClick={handleDownload}
+                            className="w-full justify-start"
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            <span>Download</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            onClick={handleShare}
+                            className="w-full justify-start"
+                          >
+                            <Share2 className="mr-2 h-4 w-4" />
+                            <span>Share</span>
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
                   {renderPreview()}
                 </div>
               </TabsContent>
