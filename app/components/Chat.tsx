@@ -4,7 +4,7 @@ import { Message, useChat } from 'ai/react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import clipboardCopy from 'clipboard-copy'
-import { RefreshCw, Send, StopCircle, Copy } from 'lucide-react'
+import { RefreshCw, Send, StopCircle, Copy, MoreHorizontal } from 'lucide-react'
 
 import { cn } from '../lib/utils'
 import { EXPANDABLE_SESSION_TYPES, SessionType } from '../types/ChatSession'
@@ -15,6 +15,7 @@ import { ScrollArea } from './ui/scroll-area'
 import { Skeleton } from './ui/skeleton'
 import { Textarea } from './ui/textarea'
 import { useToast } from '../hooks/use-toast'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 
 import './markdown.css'
 
@@ -141,7 +142,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                   >
                     <div
                       className={cn(
-                        'max-w-[80%] rounded-lg p-4 shadow-md',
+                        'max-w-[95%] rounded-lg p-4 shadow-md',
                         message.role === 'user' || message.role === 'system'
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-100 text-gray-800'
@@ -159,34 +160,50 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                         <CollapsibleUserMessage content={message.content} />
                       )}
                     </div>
-                    <div className="ml-2 flex flex-col">
-                      <Button
-                        onClick={() => handleCopy(message.content)}
-                        variant="ghost"
-                        size="icon"
-                        className="mb-2 p-0 hover:bg-gray-200"
-                        aria-label="Copy message"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      {message.role === 'assistant' && (
-                        <Button
-                          onClick={(e) => {
-                            e.preventDefault()
-                            reload({
-                              body: {
-                                sessionId: sessionId,
-                              },
-                            })
-                          }}
-                          variant="ghost"
-                          size="icon"
-                          className="p-0 hover:bg-gray-200"
-                          aria-label="Regenerate response"
-                        >
-                          <RefreshCw className="h-4 w-4" />
-                        </Button>
-                      )}
+                    <div className="ml-2 self-end">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="p-0 hover:bg-gray-200"
+                            aria-label="More options"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <div className="flex flex-col">
+                            <Button
+                              onClick={() => handleCopy(message.content)}
+                              variant="ghost"
+                              size="sm"
+                              className="flex items-center justify-start px-2 py-1"
+                            >
+                              <Copy className="mr-2 h-4 w-4" />
+                              Copy
+                            </Button>
+                            {message.role === 'assistant' && (
+                              <Button
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  reload({
+                                    body: {
+                                      sessionId: sessionId,
+                                    },
+                                  })
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center justify-start px-2 py-1"
+                              >
+                                <RefreshCw className="mr-2 h-4 w-4" />
+                                Regenerate
+                              </Button>
+                            )}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 ))}
