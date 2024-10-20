@@ -129,70 +129,68 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
           ) : (
             <>
               {sessionName && (
-                <h2 className="mb-4 text-center text-xl font-semibold">
+                <h2 className="mb-6 text-center text-xl font-semibold">
                   {sessionName}
                 </h2>
               )}
-              {messages.map((message, index) => (
-                <div
-                  key={message.id || `message-${index}`}
-                  className={cn(
-                    'mb-4',
-                    message.role === 'user' || message.role === 'system'
-                      ? 'flex justify-end'
-                      : 'flex justify-start'
-                  )}
-                >
+              <div className="space-y-6">
+                {messages.map((message, index) => (
                   <div
-                    className={cn(
-                      'flex max-w-[80%] flex-col overflow-x-auto rounded-lg p-4',
-                      message.role === 'user' || message.role === 'system'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-200 text-gray-800'
-                    )}
+                    key={message.id || `message-${index}`}
+                    className={'flex'}
                   >
-                    {message.role === 'assistant' && (
-                      <div className="markdown-body">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {message.content}
-                        </ReactMarkdown>
-                      </div>
-                    )}
-                    {(message.role === 'user' || message.role === 'system') && (
-                      <CollapsibleUserMessage content={message.content} />
-                    )}
-                  </div>
-                  <div className="ml-2 flex flex-col">
-                    <Button
-                      onClick={() => handleCopy(message.content)}
-                      variant="ghost"
-                      size="icon"
-                      className="mb-2 p-0 hover:bg-gray-200"
-                      aria-label="Copy message"
+                    <div
+                      className={cn(
+                        'max-w-[80%] rounded-lg p-4 shadow-md',
+                        message.role === 'user' || message.role === 'system'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-800'
+                      )}
                     >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    {message.role === 'assistant' && (
+                      {message.role === 'assistant' && (
+                        <div className="markdown-body prose prose-sm max-w-none">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
+                      )}
+                      {(message.role === 'user' ||
+                        message.role === 'system') && (
+                        <CollapsibleUserMessage content={message.content} />
+                      )}
+                    </div>
+                    <div className="ml-2 flex flex-col">
                       <Button
-                        onClick={(e) => {
-                          e.preventDefault()
-                          reload({
-                            body: {
-                              sessionId: sessionId,
-                            },
-                          })
-                        }}
+                        onClick={() => handleCopy(message.content)}
                         variant="ghost"
                         size="icon"
-                        className="p-0 hover:bg-gray-200"
-                        aria-label="Regenerate response"
+                        className="mb-2 p-0 hover:bg-gray-200"
+                        aria-label="Copy message"
                       >
-                        <RefreshCw className="h-4 w-4" />
+                        <Copy className="h-4 w-4" />
                       </Button>
-                    )}
+                      {message.role === 'assistant' && (
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault()
+                            reload({
+                              body: {
+                                sessionId: sessionId,
+                              },
+                            })
+                          }}
+                          variant="ghost"
+                          size="icon"
+                          className="p-0 hover:bg-gray-200"
+                          aria-label="Regenerate response"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </>
           )}
           {isLoading && (
