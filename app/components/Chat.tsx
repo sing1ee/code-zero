@@ -142,7 +142,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                   >
                     <div
                       className={cn(
-                        'max-w-[95%] rounded-lg p-4 shadow-md',
+                        'relative w-full rounded-lg p-4 shadow-md',
                         message.role === 'user' || message.role === 'system'
                           ? 'bg-blue-600 text-white'
                           : 'bg-gray-100 text-gray-800'
@@ -159,51 +159,53 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                         message.role === 'system') && (
                         <CollapsibleUserMessage content={message.content} />
                       )}
-                    </div>
-                    <div className="ml-2 self-end">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="p-0 hover:bg-gray-200"
-                            aria-label="More options"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <div className="flex flex-col">
+
+                      {/* More options button */}
+                      <div className="absolute bottom-2 right-2">
+                        <Popover>
+                          <PopoverTrigger asChild>
                             <Button
-                              onClick={() => handleCopy(message.content)}
                               variant="ghost"
-                              size="sm"
-                              className="flex items-center justify-start px-2 py-1"
+                              size="icon"
+                              className="p-0 hover:bg-gray-200"
+                              aria-label="More options"
                             >
-                              <Copy className="mr-2 h-4 w-4" />
-                              Copy
+                              <MoreHorizontal className="h-4 w-4" />
                             </Button>
-                            {message.role === 'assistant' && (
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <div className="flex flex-col">
                               <Button
-                                onClick={(e) => {
-                                  e.preventDefault()
-                                  reload({
-                                    body: {
-                                      sessionId: sessionId,
-                                    },
-                                  })
-                                }}
+                                onClick={() => handleCopy(message.content)}
                                 variant="ghost"
                                 size="sm"
                                 className="flex items-center justify-start px-2 py-1"
                               >
-                                <RefreshCw className="mr-2 h-4 w-4" />
-                                Regenerate
+                                <Copy className="mr-2 h-4 w-4" />
+                                Copy
                               </Button>
-                            )}
-                          </div>
-                        </PopoverContent>
-                      </Popover>
+                              {message.role === 'assistant' && (
+                                <Button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    reload({
+                                      body: {
+                                        sessionId: sessionId,
+                                      },
+                                    })
+                                  }}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="flex items-center justify-start px-2 py-1"
+                                >
+                                  <RefreshCw className="mr-2 h-4 w-4" />
+                                  Regenerate
+                                </Button>
+                              )}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                     </div>
                   </div>
                 ))}
