@@ -86,10 +86,20 @@ function CollapsibleSidebar({
     if (
       diagramVersions.find((v) => v.version === selectedVersion)?.type === 'svg'
     ) {
+      const tempSvg = document.createElement('div')
+      tempSvg.innerHTML =
+        diagramVersions.find((v) => v.version === selectedVersion)?.code || ''
+      const svgElement = tempSvg.firstChild as SVGSVGElement
+
+      // 获取 SVG 的宽高
+      const svgWidth = svgElement.viewBox.baseVal.width
+      const svgHeight = svgElement.viewBox.baseVal.height
       // Convert SVG to PNG and download
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')
       const img = new Image()
+      img.width = svgWidth
+      img.height = svgHeight
       img.onload = () => {
         canvas.width = img.width
         canvas.height = img.height
