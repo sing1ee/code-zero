@@ -2,11 +2,7 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  line-height: 1.4; /* Reduced from 1.6 */
   color: #333;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 5px;
 }
 
 .markdown-body * {
@@ -19,8 +15,8 @@
 .markdown-body h4,
 .markdown-body h5,
 .markdown-body h6 {
-  margin-top: 20px; /* Reduced from 24px */
-  margin-bottom: 12px; /* Reduced from 16px */
+  margin-top: 20px;
+  margin-bottom: 12px;
   font-weight: 600;
   line-height: 1.25;
 }
@@ -57,7 +53,7 @@
 .markdown-body table,
 .markdown-body pre {
   margin-top: 0;
-  margin-bottom: 12px; /* Reduced from 16px */
+  margin-bottom: 12px;
 }
 
 .markdown-body blockquote {
@@ -68,9 +64,9 @@
 
 .markdown-body ul,
 .markdown-body ol {
-  padding-left: 2em;
+  padding-left: 1.5em; /* Reduced from 2em */
   margin-top: 0;
-  margin-bottom: 12px; /* Reduced from 16px */
+  margin-bottom: 12px;
 }
 
 .markdown-body ul ul,
@@ -79,21 +75,21 @@
 .markdown-body ol ul {
   margin-top: 0;
   margin-bottom: 0;
-  padding-left: 1.2em; /* Reduced from 1.5em */
+  padding-left: 1em; /* Reduced from 1.2em */
 }
 
 .markdown-body li {
   word-wrap: break-all;
-  margin-bottom: 0.2em; /* Reduced from 0.25em */
+  margin-bottom: 0.2em;
 }
 
 .markdown-body li > p {
-  margin-top: 0.3em; /* Reduced from 0.5em */
-  margin-bottom: 0.3em; /* Reduced from 0.5em */
+  margin-top: 0.3em;
+  margin-bottom: 0.3em;
 }
 
 .markdown-body li + li {
-  margin-top: 0.2em; /* Reduced from 0.25em */
+  margin-top: 0.2em;
 }
 
 .markdown-body code {
@@ -173,7 +169,8 @@
 
 @media (max-width: 767px) {
   .markdown-body {
-    padding: 5px;
+    padding: 2px; /* Reduced from 5px */
+    max-width: 98%; /* Added to further reduce side margins on mobile */
   }
 }
 
@@ -187,7 +184,7 @@
 
 .markdown-body ul,
 .markdown-body ol {
-  padding-left: 2em;
+  padding-left: 1.5em; /* Reduced from 2em */
   margin-bottom: 1em;
 }
 
@@ -225,9 +222,9 @@
 .markdown-body ul > li > ol,
 .markdown-body ol > li > ul,
 .markdown-body ol > li > ol {
-  margin-top: 0.2em; /* Reduced from 0.25em */
-  margin-bottom: 0.2em; /* Reduced from 0.25em */
-  padding-left: 1.2em; /* Reduced from 1.5em */
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+  padding-left: 1em; /* Reduced from 1.2em */
 }
 
 /* Ensure proper indentation for deeply nested lists */
@@ -239,5 +236,5 @@
 .markdown-body ol ul ol,
 .markdown-body ol ol ul,
 .markdown-body ol ol ol {
-  padding-left: 1.2em; /* Reduced from 1.5em */
+  padding-left: 1em; /* Reduced from 1.2em */
 }

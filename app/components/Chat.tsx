@@ -149,7 +149,7 @@ export function Chat({ sessionId, sessionName, sessionType }: ChatProps) {
                       )}
                     >
                       {message.role === 'assistant' && (
-                        <div className="markdown-body prose prose-sm max-w-none">
+                        <div className="markdown-body">
                           <ReactMarkdown remarkPlugins={[remarkGfm]}>
                             {message.content}
                           </ReactMarkdown>
