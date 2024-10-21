@@ -25,7 +25,7 @@ export default function LayoutWithSidebar({
   }
 
   const handleLogout = () => {
-    signOut({ callbackUrl: '/auth/login' })
+    signOut({ callbackUrl: `${window.location.origin}/auth/login` })
   }
 
   return (
