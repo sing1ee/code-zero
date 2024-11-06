@@ -3,7 +3,6 @@ import { PopoverProps } from '@radix-ui/react-popover'
 import { Button } from './ui/button'
 import { History, Trash2 } from 'lucide-react'
 import { useChatSession } from '../contexts/ChatSessionContext'
-import { Input } from './ui/input'
 import { ScrollArea } from './ui/scroll-area'
 import { useRouter } from 'next/navigation'
 
@@ -14,7 +13,7 @@ interface HistoryPopoverProps extends PopoverProps {
 
 export function HistoryPopover({ isMobile, onClose }: HistoryPopoverProps) {
   const router = useRouter()
-  const { sessions, updateSessionName, deleteSession } = useChatSession()
+  const { sessions, deleteSession } = useChatSession()
 
   return (
     <Popover>
@@ -35,13 +34,7 @@ export function HistoryPopover({ isMobile, onClose }: HistoryPopoverProps) {
           <div className="space-y-2 pl-2 pt-2">
             {sessions.map((session) => (
               <div key={session.id} className="flex items-center space-x-2">
-                <Input
-                  value={session.name}
-                  onChange={(e) =>
-                    updateSessionName(session.id, e.target.value)
-                  }
-                  className="flex-grow"
-                />
+                <span className="flex-grow">{session.name}</span>
                 <Button
                   variant="ghost"
                   size="icon"
