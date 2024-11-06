@@ -86,14 +86,49 @@ function CollapsibleSidebar({
     if (
       diagramVersions.find((v) => v.version === selectedVersion)?.type === 'svg'
     ) {
+      const currentVersion = diagramVersions.find(
+        (v) => v.version === selectedVersion
+      )
+      if (!currentVersion?.code) {
+        console.error('No valid diagram code found')
+        return
+      }
+
       const tempSvg = document.createElement('div')
-      tempSvg.innerHTML =
-        diagramVersions.find((v) => v.version === selectedVersion)?.code || ''
+      tempSvg.innerHTML = currentVersion.code
       const svgElement = tempSvg.firstChild as SVGSVGElement
 
-      // 获取 SVG 的宽高
-      const svgWidth = svgElement.viewBox.baseVal.width
-      const svgHeight = svgElement.viewBox.baseVal.height
+      if (!svgElement || !(svgElement instanceof SVGSVGElement)) {
+        console.error('Invalid SVG element')
+        return
+      }
+
+      let svgWidth = 0
+      let svgHeight = 0
+
+      if (svgElement.viewBox.baseVal && svgElement.viewBox.baseVal.width > 0) {
+        svgWidth = svgElement.viewBox.baseVal.width
+        svgHeight = svgElement.viewBox.baseVal.height
+      } else {
+        // 检查 width/height 属性
+        const widthAttr = svgElement.getAttribute('width')
+        const heightAttr = svgElement.getAttribute('height')
+
+        if (widthAttr && heightAttr) {
+          // 移除单位(px, em等)，只保留数字
+          svgWidth = parseFloat(widthAttr)
+          svgHeight = parseFloat(heightAttr)
+        } else {
+          // 如果都没有，使用 client 尺寸
+          svgWidth = svgElement.clientWidth || 800 // 设置默认宽度
+          svgHeight = svgElement.clientHeight || 600 // 设置默认高度
+        }
+      }
+
+      if (!svgWidth || !svgHeight) {
+        console.error('Could not determine SVG dimensions')
+        return
+      }
       // Convert SVG to PNG and download
       const canvas = document.createElement('canvas')
       const ctx = canvas.getContext('2d')

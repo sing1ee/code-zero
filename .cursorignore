@@ -7,3 +7,4 @@ build/
 .pnp
 .pnp.js
 .yarn/install-state.gz
+.cursorignore
