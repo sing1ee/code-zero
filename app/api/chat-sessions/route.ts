@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '../../lib/db'
 import { chatMessages, chatSessions, systemCommand } from '../../lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, desc } from 'drizzle-orm'
 import { SessionType, ChatSession } from '../../types/ChatSession'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../../lib/auth'
@@ -65,10 +65,11 @@ export async function POST(request: Request) {
 // 获取会话列表
 export async function GET() {
   try {
+    // desc
     const sessions = await db
       .select()
       .from(chatSessions)
-      .orderBy(chatSessions.createdAt)
+      .orderBy(desc(chatSessions.createdAt))
     return NextResponse.json(sessions.map(removeSystemPrompt))
   } catch (error) {
     return NextResponse.json(
