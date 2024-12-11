@@ -58,27 +58,44 @@ function CollapsibleSidebar({
   useEffect(() => {
     const versions: DiagramVersion[] = []
     assistantMessages.forEach((message, index) => {
-      const svgMatch = message.content.match(/<svg[\s\S]*<\/svg>/)
-      const mermaidMatch = message.content.match(/```mermaid\n([\s\S]*?)```/)
+      // Using a more compatible SVG matching pattern
+      const svgMatches = message.content.match(/<svg[^>]*>[\s\S]*?<\/svg>/g)
 
-      if (svgMatch) {
-        versions.push({
-          version: `V${index + 1}`,
-          code: svgMatch[0],
-          type: 'svg',
+      // Using a more compatible Mermaid matching pattern
+      const mermaidMatches = message.content.match(/```mermaid\n[\s\S]*?```/g)
+
+      if (svgMatches) {
+        svgMatches.forEach((svgCode) => {
+          versions.push({
+            version: `V${index + 1}-${versions.length + 1}`,
+            code: svgCode,
+            type: 'svg',
+          })
         })
-      } else if (mermaidMatch) {
-        versions.push({
-          version: `V${index + 1}`,
-          code: mermaidMatch[1],
-          type: 'mermaid',
+      }
+
+      if (mermaidMatches) {
+        mermaidMatches.forEach((mermaidBlock) => {
+          const mermaidCode = mermaidBlock
+            .replace(/```mermaid\n|```/g, '')
+            .trim()
+          versions.push({
+            version: `V${index + 1}-${versions.length + 1}`,
+            code: mermaidCode,
+            type: 'mermaid',
+          })
         })
       }
     })
 
-    setDiagramVersions(versions.reverse())
-    if (versions.length > 0) {
-      setSelectedVersion(versions[0].version)
+    // Reverse to show most recent versions first
+    const reversedVersions = versions.reverse()
+
+    setDiagramVersions(reversedVersions)
+
+    // Select the first version if available
+    if (reversedVersions.length > 0) {
+      setSelectedVersion(reversedVersions[0].version)
     }
   }, [assistantMessages])
 
