@@ -6,23 +6,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from './ui/collapsible'
-import {
-  ChevronRight,
-  ChevronLeft,
-  MoreVertical,
-  Download,
-  Share2,
-} from 'lucide-react'
+import { ChevronRight, ChevronLeft, Download, Share2 } from 'lucide-react'
 import { Button } from './ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select'
 import { SessionType, EXPANDABLE_SESSION_TYPES } from '../types/ChatSession'
 import { Message } from 'ai'
 import dynamic from 'next/dynamic'
@@ -238,22 +223,55 @@ function CollapsibleSidebar({
     console.log('Sharing functionality to be implemented')
   }, [])
 
-  const renderPreview = useCallback(() => {
-    const currentVersion = diagramVersions.find(
-      (v) => v.version === selectedVersion
-    )
-    if (!currentVersion) return null
-
-    if (currentVersion.type === 'svg') {
-      return <div dangerouslySetInnerHTML={{ __html: currentVersion.code }} />
-    } else if (currentVersion.type === 'mermaid') {
-      // 添加 key 属性，使用 selectedVersion 作为唯一标识符
+  const renderDiagramCard = useCallback(
+    (version: DiagramVersion) => {
       return (
-        <MermaidWrapper key={selectedVersion} chart={currentVersion.code} />
+        <div
+          key={version.version}
+          className="flex flex-col rounded-lg bg-white shadow-md dark:bg-gray-600"
+        >
+          <div className="flex items-center justify-between border-b p-3 dark:border-gray-500">
+            <span className="font-medium">{version.version}</span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleDownload()}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={handleShare}>
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 divide-x dark:divide-gray-500">
+            <div className="p-4">
+              <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Source
+              </div>
+              <pre className="mt-2 max-h-[300px] overflow-auto">
+                <code>{version.code}</code>
+              </pre>
+            </div>
+            <div className="p-4">
+              <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Preview
+              </div>
+              <div className="mt-2">
+                {version.type === 'svg' ? (
+                  <div dangerouslySetInnerHTML={{ __html: version.code }} />
+                ) : (
+                  <MermaidWrapper key={version.version} chart={version.code} />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       )
-    }
-    return null
-  }, [selectedVersion, diagramVersions])
+    },
+    [handleDownload, handleShare]
+  )
 
   const canExpand = EXPANDABLE_SESSION_TYPES.includes(sessionType)
 
@@ -270,81 +288,10 @@ function CollapsibleSidebar({
       </div>
       {canExpand && (
         <>
-          <CollapsibleContent className="flex-1 overflow-hidden bg-gray-50 p-4 dark:bg-gray-700">
-            <Tabs defaultValue="source" className="h-full">
-              <div className="mb-2 flex items-center justify-between">
-                <TabsList className="grid w-[200px] grid-cols-2">
-                  <TabsTrigger value="source">Source</TabsTrigger>
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                </TabsList>
-                <Select
-                  value={selectedVersion}
-                  onValueChange={setSelectedVersion}
-                >
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue placeholder="Version" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {diagramVersions.map((version) => (
-                      <SelectItem key={version.version} value={version.version}>
-                        {version.version}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <TabsContent
-                value="source"
-                className="h-[calc(100%-2.5rem)] overflow-auto"
-              >
-                <div className="h-full rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-                  <pre className="h-full overflow-auto">
-                    <code>
-                      {diagramVersions.find(
-                        (v) => v.version === selectedVersion
-                      )?.code || ''}
-                    </code>
-                  </pre>
-                </div>
-              </TabsContent>
-              <TabsContent
-                value="preview"
-                className="relative h-[calc(100%-2.5rem)] space-y-4 overflow-auto"
-              >
-                <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-600">
-                  <div className="absolute right-2 top-2">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-40">
-                        <div className="flex flex-col space-y-2">
-                          <Button
-                            variant="ghost"
-                            onClick={handleDownload}
-                            className="w-full justify-start"
-                          >
-                            <Download className="mr-2 h-4 w-4" />
-                            <span>Download</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            onClick={handleShare}
-                            className="w-full justify-start"
-                          >
-                            <Share2 className="mr-2 h-4 w-4" />
-                            <span>Share</span>
-                          </Button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  {renderPreview()}
-                </div>
-              </TabsContent>
-            </Tabs>
+          <CollapsibleContent className="flex-1 overflow-auto bg-gray-50 p-4 dark:bg-gray-700">
+            <div className="grid grid-cols-1 gap-6">
+              {diagramVersions.map(renderDiagramCard)}
+            </div>
           </CollapsibleContent>
           <CollapsibleTrigger asChild>
             <Button variant="ghost" size="icon" className="h-full rounded-none">
