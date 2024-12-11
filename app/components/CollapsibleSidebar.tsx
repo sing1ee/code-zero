@@ -6,7 +6,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from './ui/collapsible'
-import { ChevronRight, ChevronLeft, Download, Share2 } from 'lucide-react'
+import {
+  ChevronRight,
+  ChevronLeft,
+  Download,
+  Share2,
+  Check,
+  Copy,
+} from 'lucide-react'
 import { Button } from './ui/button'
 import { SessionType, EXPANDABLE_SESSION_TYPES } from '../types/ChatSession'
 import { Message } from 'ai'
@@ -35,6 +42,7 @@ function CollapsibleSidebar({
 }: CollapsibleSidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [diagramVersions, setDiagramVersions] = useState<DiagramVersion[]>([])
+  const [copiedVersion, setCopiedVersion] = useState<string | null>(null)
 
   useEffect(() => {
     setIsOpen(EXPANDABLE_SESSION_TYPES.includes(sessionType))
@@ -191,6 +199,12 @@ function CollapsibleSidebar({
     console.log('Sharing functionality to be implemented')
   }, [])
 
+  const handleCopyCode = useCallback((version: DiagramVersion) => {
+    navigator.clipboard.writeText(version.code)
+    setCopiedVersion(version.version)
+    setTimeout(() => setCopiedVersion(null), 2000)
+  }, [])
+
   const renderDiagramCard = useCallback(
     (version: DiagramVersion) => {
       return (
@@ -231,8 +245,22 @@ function CollapsibleSidebar({
               </div>
             </TabsContent>
             <TabsContent value="source" className="p-4">
-              <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Source
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  Source
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCopyCode(version)}
+                  className="h-8 px-2"
+                >
+                  {copiedVersion === version.version ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </Button>
               </div>
               <pre className="mt-2 max-h-[300px] overflow-auto">
                 <code>{version.code}</code>
@@ -242,7 +270,7 @@ function CollapsibleSidebar({
         </div>
       )
     },
-    [handleDownload, handleShare]
+    [handleDownload, handleShare, handleCopyCode, copiedVersion]
   )
 
   const canExpand = EXPANDABLE_SESSION_TYPES.includes(sessionType)
