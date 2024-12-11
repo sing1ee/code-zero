@@ -13,6 +13,7 @@ import { Message } from 'ai'
 import dynamic from 'next/dynamic'
 import mermaid from 'mermaid'
 import { ensureMatchedTags } from '../lib/utils'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs'
 const MermaidWrapper = dynamic(() => import('./MermaidWrapper'), { ssr: false })
 
 interface CollapsibleSidebarProps {
@@ -34,7 +35,6 @@ function CollapsibleSidebar({
 }: CollapsibleSidebarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [diagramVersions, setDiagramVersions] = useState<DiagramVersion[]>([])
-  const [selectedVersion, setSelectedVersion] = useState<string>('')
 
   useEffect(() => {
     setIsOpen(EXPANDABLE_SESSION_TYPES.includes(sessionType))
@@ -77,33 +77,13 @@ function CollapsibleSidebar({
     const reversedVersions = versions.reverse()
 
     setDiagramVersions(reversedVersions)
-
-    // Select the first version if available
-    if (reversedVersions.length > 0) {
-      setSelectedVersion(reversedVersions[0].version)
-    }
   }, [assistantMessages])
 
-  const handleDownload = useCallback(() => {
-    if (
-      diagramVersions.find((v) => v.version === selectedVersion)?.type === 'svg'
-    ) {
-      const currentVersion = diagramVersions.find(
-        (v) => v.version === selectedVersion
-      )
-      if (!currentVersion?.code) {
-        console.error('No valid diagram code found')
-        return
-      }
-
+  const handleDownload = useCallback((version: DiagramVersion) => {
+    if (version.type === 'svg') {
       const tempSvg = document.createElement('div')
-      tempSvg.innerHTML = currentVersion.code
+      tempSvg.innerHTML = version.code
       const svgElement = tempSvg.firstChild as SVGSVGElement
-
-      if (!svgElement || !(svgElement instanceof SVGSVGElement)) {
-        console.error('Invalid SVG element')
-        return
-      }
 
       let svgWidth = 0
       let svgHeight = 0
@@ -147,76 +127,64 @@ function CollapsibleSidebar({
         downloadLink.href = pngFile
         downloadLink.click()
       }
-      img.src =
-        'data:image/svg+xml,' +
-        encodeURIComponent(
-          diagramVersions.find((v) => v.version === selectedVersion)?.code || ''
-        )
-    } else if (
-      diagramVersions.find((v) => v.version === selectedVersion)?.type ===
-      'mermaid'
-    ) {
-      mermaid
-        .render(
-          'mermaid-svg',
-          diagramVersions.find((v) => v.version === selectedVersion)?.code || ''
-        )
-        .then(({ svg }) => {
-          svg = ensureMatchedTags(svg)
-          // 创建一个临时的 SVG 元素来获取尺寸
-          const tempSvg = document.createElement('div')
-          tempSvg.innerHTML = svg
-          const svgElement = tempSvg.firstChild as SVGSVGElement
+      img.src = 'data:image/svg+xml,' + encodeURIComponent(version.code)
+    } else if (version.type === 'mermaid') {
+      mermaid.render('mermaid-svg', version.code).then(({ svg }) => {
+        svg = ensureMatchedTags(svg)
+        // 创建一个临时的 SVG 元素来获取尺寸
+        const tempSvg = document.createElement('div')
+        tempSvg.innerHTML = svg
+        const svgElement = tempSvg.firstChild as SVGSVGElement
 
-          let svgWidth = 0
-          let svgHeight = 0
+        let svgWidth = 0
+        let svgHeight = 0
 
-          if (
-            svgElement.viewBox.baseVal &&
-            svgElement.viewBox.baseVal.width > 0
-          ) {
-            svgWidth = svgElement.viewBox.baseVal.width
-            svgHeight = svgElement.viewBox.baseVal.height
+        if (
+          svgElement.viewBox.baseVal &&
+          svgElement.viewBox.baseVal.width > 0
+        ) {
+          svgWidth = svgElement.viewBox.baseVal.width
+          svgHeight = svgElement.viewBox.baseVal.height
+        } else {
+          // 检查 width/height 属性
+          const widthAttr = svgElement.getAttribute('width')
+          const heightAttr = svgElement.getAttribute('height')
+
+          if (widthAttr && heightAttr) {
+            // 移除单位(px, em等)，只保留数字
+            svgWidth = parseFloat(widthAttr)
+            svgHeight = parseFloat(heightAttr)
           } else {
-            // 检查 width/height 属性
-            const widthAttr = svgElement.getAttribute('width')
-            const heightAttr = svgElement.getAttribute('height')
+            // 如果都没有，使用 client 尺寸
+            svgWidth = svgElement.clientWidth || 800 // 设置默认宽度
+            svgHeight = svgElement.clientHeight || 600 // 设置默认高度
+          }
+        }
 
-            if (widthAttr && heightAttr) {
-              // 移除单位(px, em等)，只保留数字
-              svgWidth = parseFloat(widthAttr)
-              svgHeight = parseFloat(heightAttr)
-            } else {
-              // 如果都没有，使用 client 尺寸
-              svgWidth = svgElement.clientWidth || 800 // 设置默认宽度
-              svgHeight = svgElement.clientHeight || 600 // 设置默认高度
-            }
-          }
-
-          if (!svgWidth || !svgHeight) {
-            console.error('Could not determine SVG dimensions')
-            return
-          }
-          const canvas = document.createElement('canvas')
-          const ctx = canvas.getContext('2d')
-          const img = new Image()
-          img.width = svgWidth
-          img.height = svgHeight
-          img.onload = () => {
-            canvas.width = img.width
-            canvas.height = img.height
-            ctx?.drawImage(img, 0, 0)
-            const pngFile = canvas.toDataURL('image/png')
-            const downloadLink = document.createElement('a')
-            downloadLink.download = 'mermaid-diagram.png'
-            downloadLink.href = pngFile
-            downloadLink.click()
-          }
-          img.src = 'data:image/svg+xml,' + encodeURIComponent(svg)
-          console.log(img.src)
-        })
+        if (!svgWidth || !svgHeight) {
+          console.error('Could not determine SVG dimensions')
+          return
+        }
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        const img = new Image()
+        img.width = svgWidth
+        img.height = svgHeight
+        img.onload = () => {
+          canvas.width = img.width
+          canvas.height = img.height
+          ctx?.drawImage(img, 0, 0)
+          const pngFile = canvas.toDataURL('image/png')
+          const downloadLink = document.createElement('a')
+          downloadLink.download = 'mermaid-diagram.png'
+          downloadLink.href = pngFile
+          downloadLink.click()
+        }
+        img.src = 'data:image/svg+xml,' + encodeURIComponent(svg)
+        console.log(img.src)
+      })
     }
-  }, [diagramVersions, selectedVersion])
+  }, [])
 
   const handleShare = useCallback(() => {
     // Implement share functionality
@@ -236,7 +204,7 @@ function CollapsibleSidebar({
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => handleDownload()}
+                onClick={() => handleDownload(version)}
               >
                 <Download className="h-4 w-4" />
               </Button>
@@ -245,16 +213,12 @@ function CollapsibleSidebar({
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-2 divide-x dark:divide-gray-500">
-            <div className="p-4">
-              <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Source
-              </div>
-              <pre className="mt-2 max-h-[300px] overflow-auto">
-                <code>{version.code}</code>
-              </pre>
-            </div>
-            <div className="p-4">
+          <Tabs defaultValue="preview" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="preview">Preview</TabsTrigger>
+              <TabsTrigger value="source">Source</TabsTrigger>
+            </TabsList>
+            <TabsContent value="preview" className="p-4">
               <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                 Preview
               </div>
@@ -265,8 +229,16 @@ function CollapsibleSidebar({
                   <MermaidWrapper key={version.version} chart={version.code} />
                 )}
               </div>
-            </div>
-          </div>
+            </TabsContent>
+            <TabsContent value="source" className="p-4">
+              <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Source
+              </div>
+              <pre className="mt-2 max-h-[300px] overflow-auto">
+                <code>{version.code}</code>
+              </pre>
+            </TabsContent>
+          </Tabs>
         </div>
       )
     },
