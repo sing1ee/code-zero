@@ -236,19 +236,11 @@ function CollapsibleSidebar({
               <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                 Preview
               </div>
-              <div className="mt-2 max-w-full overflow-auto">
+              <div className="mt-2">
                 {version.type === 'svg' ? (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: version.code }}
-                    className="svg-container [&>svg]:h-auto [&>svg]:w-full [&>svg]:max-w-full"
-                  />
+                  <div dangerouslySetInnerHTML={{ __html: version.code }} />
                 ) : (
-                  <div className="mermaid-container w-full">
-                    <MermaidWrapper
-                      key={version.version}
-                      chart={version.code}
-                    />
-                  </div>
+                  <MermaidWrapper key={version.version} chart={version.code} />
                 )}
               </div>
             </TabsContent>
